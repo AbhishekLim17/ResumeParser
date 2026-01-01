@@ -247,7 +247,7 @@ export default function Dashboard() {
           <button
             onClick={handleMatch}
             disabled={loading}
-            className="px-12 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-lg font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+            className="px-12 py-4 bg-blue-600 text-white text-lg font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
           >
             {loading ? (
               <span className="flex items-center justify-center">
