@@ -120,8 +120,6 @@ class ResumeParser:
                 word.Quit()
             except:
                 pass
-            except:
-                pass
         
         # If both methods fail, give clear instructions
         raise ValueError(
