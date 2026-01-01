@@ -113,12 +113,22 @@ class JobAnalyzer:
         skills = self.extract_skills(description)
         experience = self.extract_experience(description)
         
-        # Extract keywords using NLP
-        keywords = self.nlp.extract_keywords(description, top_n=20)
+        # Extract keywords using NLP and filter out common non-skill words
+        all_keywords = self.nlp.extract_keywords(description, top_n=20)
+        
+        # Common words to exclude from keywords (but NOT testing/tester/developer)
+        exclude_words = {
+            'looking', 'must', 'year', 'years', 'required', 'need', 'seeking',
+            'candidate', 'should', 'strong', 'excellent', 'good', 'work',
+            'working', 'team', 'ability', 'knowledge', 'position', 'job'
+        }
+        
+        # Filter keywords - keep only relevant ones
+        keywords = [kw for kw in all_keywords if kw.lower() not in exclude_words]
         
         return {
             "roles": roles,
             "skills": skills,
             "experience": experience,
-            "keywords": keywords
+            "keywords": keywords[:10]  # Top 10 filtered keywords
         }

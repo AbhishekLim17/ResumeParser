@@ -1,12 +1,22 @@
 """
 Resume Parser - Extract information from resumes
+Supports: PDF, TXT, DOCX, and Images (JPG, PNG) with OCR
 Uses NLP processing and pattern matching
 """
 
 import re
+import os
 from typing import Dict, List
 import PyPDF2
 from docx import Document
+
+try:
+    import pytesseract
+    from PIL import Image
+    OCR_AVAILABLE = True
+except ImportError:
+    OCR_AVAILABLE = False
+    print("Warning: pytesseract or PIL not available. Image support disabled.")
 
 from nlp_processor import NLPProcessor
 
@@ -14,20 +24,27 @@ from nlp_processor import NLPProcessor
 class ResumeParser:
     """
     Parse resumes and extract structured information
-    Supports PDF and TXT formats
+    Supports: PDF, TXT, DOCX, JPG, PNG
     """
     
     def __init__(self, nlp_processor: NLPProcessor):
         """Initialize with NLP processor"""
         self.nlp = nlp_processor
         
-        # Common tech skills (can be expanded)
+        # Common tech skills (expanded list)
         self.common_skills = {
             'python', 'java', 'javascript', 'react', 'node', 'sql', 'mongodb',
             'machine learning', 'deep learning', 'nlp', 'data science',
             'aws', 'azure', 'docker', 'kubernetes', 'git', 'api', 'rest',
             'html', 'css', 'typescript', 'angular', 'vue', 'flask', 'django',
-            'tensorflow', 'pytorch', 'pandas', 'numpy', 'scikit', 'fastapi'
+            'tensorflow', 'pytorch', 'pandas', 'numpy', 'scikit', 'fastapi',
+            'spring', 'hibernate', 'mysql', 'postgresql', 'redis', 'kafka',
+            'spark', 'hadoop', 'jenkins', 'ci/cd', 'agile', 'scrum',
+            # Testing skills
+            'testing', 'tester', 'qa', 'quality assurance', 'automation',
+            'selenium', 'junit', 'testng', 'pytest', 'jest', 'mocha',
+            'manual testing', 'functional testing', 'regression testing',
+            'integration testing', 'unit testing', 'smoke testing'
         }
     
     def extract_text_from_pdf(self, file_path: str) -> str:
@@ -51,14 +68,77 @@ class ResumeParser:
             print(f"TXT extraction error: {e}")
             return ""
     
+    def extract_text_from_docx(self, file_path: str) -> str:
+        """Extract text from DOCX file including tables"""
+        try:
+            doc = Document(file_path)
+            text = []
+            
+            # Extract from paragraphs
+            for paragraph in doc.paragraphs:
+                if paragraph.text.strip():
+                    text.append(paragraph.text)
+            
+            # Extract from tables
+            for table in doc.tables:
+                for row in table.rows:
+                    for cell in row.cells:
+                        if cell.text.strip():
+                            text.append(cell.text)
+            
+            extracted_text = '\n'.join(text)
+            print(f"DOCX: Extracted {len(extracted_text)} characters from {len(doc.paragraphs)} paragraphs and {len(doc.tables)} tables")
+            
+            if not extracted_text:
+                print("WARNING: No text extracted from DOCX file!")
+                raise ValueError("Empty document - no text content found")
+            
+            return extracted_text
+            
+        except Exception as e:
+            error_msg = f"DOCX extraction failed: {type(e).__name__}: {str(e)}"
+            print(error_msg)
+            raise ValueError(error_msg)
+    
+    def extract_text_from_image(self, file_path: str) -> str:
+        """Extract text from image using OCR"""
+        if not OCR_AVAILABLE:
+            return "OCR not available. Install pytesseract and PIL."
+        
+        try:
+            image = Image.open(file_path)
+            text = pytesseract.image_to_string(image)
+            return text
+        except Exception as e:
+            print(f"OCR extraction error: {e}")
+            return ""
+    
     def extract_text(self, file_path: str) -> str:
         """Extract text based on file type"""
-        if file_path.endswith('.pdf'):
+        file_lower = file_path.lower()
+        
+        if file_lower.endswith('.pdf'):
             return self.extract_text_from_pdf(file_path)
-        elif file_path.endswith('.txt'):
+        elif file_lower.endswith('.txt'):
             return self.extract_text_from_txt(file_path)
+        elif file_lower.endswith('.docx'):
+            return self.extract_text_from_docx(file_path)
+        elif file_lower.endswith('.doc'):
+            # Old .doc format not supported - provide clear error
+            raise ValueError(
+                "Old .doc format (Word 97-2003) is not supported. "
+                "Please save your resume as .docx format: "
+                "Open file in Word → File → Save As → Word Document (*.docx)"
+            )
+        elif file_lower.endswith(('.jpg', '.jpeg', '.png', '.bmp', '.tiff')):
+            if not OCR_AVAILABLE:
+                raise ValueError("Image support requires pytesseract installation")
+            return self.extract_text_from_image(file_path)
         else:
-            raise ValueError("Unsupported file format. Use PDF or TXT")
+            raise ValueError(
+                f"Unsupported file format. "
+                f"Supported formats: PDF, TXT, DOCX (not .doc), JPG, PNG"
+            )
     
     def extract_email(self, text: str) -> str:
         """Extract email using regex"""

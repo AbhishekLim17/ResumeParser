@@ -9,19 +9,31 @@ A production-ready Resume Parser application that helps Human Resource Managers 
 
 ## 🎯 Features
 
-- **User Authentication**: Email and Google OAuth via Supabase
+- **User Authentication**: Email authentication via Supabase
 - **Job Analysis**: Extract skills, roles, and requirements from job descriptions
-- **Resume Parsing**: Automatic extraction from PDF and TXT files
+- **Resume Parsing**: Automatic extraction from **PDF, TXT, DOCX** files
 - **Smart Matching**: Levenshtein distance-based fuzzy skill matching
 - **Ranked Results**: Candidates sorted by match score
+
+## 📝 Supported File Formats
+
+✅ **PDF** - Fully supported  
+✅ **TXT** - Fully supported  
+✅ **DOCX** - Fully supported (Word 2007+)  
+✅ **JPG/PNG** - With OCR (requires Tesseract)  
+❌ **DOC** - Not supported (Word 97-2003 format)
+
+> **Note**: If you have .doc files, please save them as .docx format:  
+> Open in Word → File → Save As → Word Document (*.docx)
 
 ## 🧠 NLP Concepts Implemented
 
 - ✅ **Tokenization**: Breaking text into meaningful units
-- ✅ **Lemmatization**: Reducing words to their root form
+- ✅ **Lemmatization**: Reducing words to their root form (WordNetLemmatizer)
+- ✅ **Stemming**: Porter Stemmer for word root extraction
 - ✅ **Stopword Removal**: Filtering out common words
-- ✅ **Levenshtein Distance**: Fuzzy string matching for skills
-- ✅ **Keyword Extraction**: Identifying important terms
+- ✅ **Levenshtein Distance**: Custom implementation for fuzzy string matching
+- ✅ **Keyword Extraction**: TF-based importance scoring
 
 ## 🏗️ System Architecture
 
@@ -209,9 +221,9 @@ python -c "from nlp_processor import NLPProcessor; nlp = NLPProcessor(); print(n
 
 ## 📊 How It Works
 
-1. **User Login**: Authenticate with email or Google
+1. **User Login**: Authenticate with email via Supabase
 2. **Job Input**: Enter job description or keywords
-3. **Upload Resumes**: Upload multiple PDF/TXT resumes
+3. **Upload Resumes**: Upload multiple PDF/TXT/DOCX files
 4. **Processing**:
    - Extract text from resumes
    - Tokenize and lemmatize both job and resume text

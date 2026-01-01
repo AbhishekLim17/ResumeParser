@@ -9,6 +9,11 @@ import { supabase } from '@/lib/supabase'
 export default function Home() {
   const router = useRouter()
   const [session, setSession] = useState<any>(null)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -30,7 +35,7 @@ export default function Home() {
     return () => subscription.unsubscribe()
   }, [router])
 
-  if (session) {
+  if (!mounted || session) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -57,7 +62,7 @@ export default function Home() {
           <Auth
             supabaseClient={supabase}
             appearance={{ theme: ThemeSupa }}
-            providers={['google']}
+            providers={[]}
             theme="light"
           />
         </div>

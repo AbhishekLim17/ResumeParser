@@ -3,11 +3,12 @@ Resume Parser Backend - FastAPI Application
 Simple and clean implementation for NLP-based resume screening
 """
 
-from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
+from fastapi import FastAPI, File, UploadFile, HTTPException, Depends, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
 import os
+import json
 from dotenv import load_dotenv
 
 from nlp_processor import NLPProcessor
@@ -130,7 +131,7 @@ async def parse_resumes(files: List[UploadFile] = File(...)):
 
 @app.post("/api/match", response_model=List[MatchResponse])
 async def match_resumes(
-    job_input: JobInput,
+    job_input: str = Form(...),
     files: List[UploadFile] = File(...)
 ):
     """
@@ -139,12 +140,15 @@ async def match_resumes(
     Uses Levenshtein distance for skill matching
     """
     try:
+        # Parse job_input JSON
+        job_data = json.loads(job_input)
+        
         # Analyze job
-        if job_input.description:
-            job_data = job_analyzer.analyze(job_input.description)
-            required_skills = job_data['skills'] + job_data['keywords']
+        if job_data.get('description'):
+            job_analysis = job_analyzer.analyze(job_data['description'])
+            required_skills = job_analysis['skills'] + job_analysis['keywords']
         else:
-            required_skills = job_input.keywords or []
+            required_skills = job_data.get('keywords', [])
         
         # Parse all resumes
         candidates = []
@@ -154,16 +158,53 @@ async def match_resumes(
             with open(temp_path, "wb") as f:
                 f.write(content)
             
-            # Parse and match
-            resume_data = resume_parser.parse(temp_path)
-            match_result = matcher.match(resume_data, required_skills)
+            print(f"\n{'='*60}")
+            print(f"Processing file: {file.filename}")
+            print(f"File size: {len(content)} bytes")
+            print(f"{'='*60}")
             
-            candidates.append({
-                "filename": file.filename,
-                "score": match_result['score'],
-                "matched_skills": match_result['matched_skills'],
-                "extracted_data": resume_data
-            })
+            # Parse and match
+            try:
+                resume_data = resume_parser.parse(temp_path)
+                print(f"Resume data: {resume_data}")
+                
+                # Check if parsing was successful
+                if 'error' in resume_data:
+                    print(f"ERROR: {resume_data['error']}")
+                    candidates.append({
+                        "filename": file.filename,
+                        "score": 0.0,
+                        "matched_skills": [],
+                        "extracted_data": {
+                            "error": resume_data['error'],
+                            "skills": [],
+                            "keywords": []
+                        }
+                    })
+                    continue
+                
+                match_result = matcher.match(resume_data, required_skills)
+                print(f"Match result: {match_result}")
+                
+                candidates.append({
+                    "filename": file.filename,
+                    "score": match_result['score'],
+                    "matched_skills": match_result['matched_skills'],
+                    "extracted_data": resume_data
+                })
+            except Exception as e:
+                error_msg = str(e)
+                print(f"ERROR processing {file.filename}: {error_msg}")
+                candidates.append({
+                    "filename": file.filename,
+                    "score": 0.0,
+                    "matched_skills": [],
+                    "extracted_data": {
+                        "error": error_msg,
+                        "skills": [],
+                        "keywords": []
+                    }
+                })
             
             os.remove(temp_path)
         
