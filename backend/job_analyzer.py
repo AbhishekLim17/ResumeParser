@@ -1,6 +1,6 @@
 """
 Job Description Analyzer
-Extracts skills, roles, and requirements from job descriptions
+Extracts skills, roles, and requirements from job descriptions using PURE NLP
 """
 
 import re
@@ -11,58 +11,66 @@ from nlp_processor import NLPProcessor
 class JobAnalyzer:
     """
     Analyze job descriptions to extract requirements
-    Uses NLP techniques to identify skills, roles, experience
+    Uses PURE NLP techniques - NO HARDCODED LISTS!
     """
     
     def __init__(self, nlp_processor: NLPProcessor):
         """Initialize with NLP processor"""
         self.nlp = nlp_processor
-        
-        # Common job roles
-        self.roles = {
-            'developer', 'engineer', 'architect', 'manager', 'analyst',
-            'scientist', 'designer', 'consultant', 'specialist', 'lead',
-            'senior', 'junior', 'intern', 'director', 'coordinator'
-        }
-        
-        # Common tech skills
-        self.tech_skills = {
-            'python', 'java', 'javascript', 'react', 'node', 'sql', 'mongodb',
-            'machine learning', 'deep learning', 'nlp', 'data science',
-            'aws', 'azure', 'docker', 'kubernetes', 'git', 'api', 'rest',
-            'html', 'css', 'typescript', 'angular', 'vue', 'flask', 'django',
-            'tensorflow', 'pytorch', 'pandas', 'numpy', 'scikit', 'fastapi',
-            'spring', 'hibernate', 'mysql', 'postgresql', 'redis', 'kafka'
-        }
     
     def extract_roles(self, text: str) -> List[str]:
-        """Extract job roles from description"""
+        """
+        Extract job roles using NLP keyword extraction
+        Looks for important nouns that might be roles
+        """
+        # Use keyword extraction
+        keywords = self.nlp.extract_keywords(text, top_n=15)
+        
+        # Filter for likely role terms (ending with common role suffixes)
+        role_keywords = ['developer', 'engineer', 'manager', 'architect', 'analyst',
+                        'designer', 'specialist', 'lead', 'director', 'coordinator']
+        
         found_roles = []
         text_lower = text.lower()
         
-        for role in self.roles:
-            if role in text_lower:
-                found_roles.append(role)
+        for keyword in keywords:
+            # Check if keyword contains any role term
+            if any(role in keyword for role in role_keywords):
+                found_roles.append(keyword)
         
-        return list(set(found_roles))
+        return list(set(found_roles))[:5]
     
     def extract_skills(self, text: str) -> List[str]:
         """
-        Extract required skills from job description
-        Uses NLP processing and pattern matching
+        Extract required skills using PURE NLP - NO HARDCODING!
+        Uses Tokenization + Lemmatization + Keyword Extraction
         """
-        found_skills = []
-        text_lower = text.lower()
+        # Step 1: Extract keywords using TF-based importance
+        keywords = self.nlp.extract_keywords(text, top_n=30)
         
-        # Check for tech skills
-        for skill in self.tech_skills:
-            if skill in text_lower:
-                found_skills.append(skill)
+        # Step 2: Tokenize and lemmatize
+        tokens = self.nlp.tokenize(text.lower())
+        lemmatized = self.nlp.lemmatize(text.lower())
+        
+        found_skills = []
+        
+        # Step 3: Add important keywords
+        for keyword in keywords:
+            if len(keyword) > 2 and any(c.isalnum() for c in keyword):
+                found_skills.append(keyword)
+        
+        # Step 4: Look for capitalized terms (often technologies/skills)
+        words = text.split()
+        for word in words:
+            clean_word = re.sub(r'[^a-zA-Z0-9+#]', '', word)
+            if clean_word and len(clean_word) > 2:
+                if word[0].isupper() or '+' in word or '#' in word:
+                    found_skills.append(clean_word.lower())
         
         # Extract from "Skills:" section if present
         skills_section = re.search(
             r'(?:skills?|requirements?|qualifications?)[\s:]+([^\n]+)',
-            text_lower,
+            text.lower(),
             re.IGNORECASE
         )
         

@@ -9,6 +9,7 @@ import os
 from typing import Dict, List
 import PyPDF2
 from docx import Document
+import docx2txt
 
 try:
     import pytesseract
@@ -28,24 +29,8 @@ class ResumeParser:
     """
     
     def __init__(self, nlp_processor: NLPProcessor):
-        """Initialize with NLP processor"""
+        """Initialize with NLP processor - NO HARDCODED SKILLS!"""
         self.nlp = nlp_processor
-        
-        # Common tech skills (expanded list)
-        self.common_skills = {
-            'python', 'java', 'javascript', 'react', 'node', 'sql', 'mongodb',
-            'machine learning', 'deep learning', 'nlp', 'data science',
-            'aws', 'azure', 'docker', 'kubernetes', 'git', 'api', 'rest',
-            'html', 'css', 'typescript', 'angular', 'vue', 'flask', 'django',
-            'tensorflow', 'pytorch', 'pandas', 'numpy', 'scikit', 'fastapi',
-            'spring', 'hibernate', 'mysql', 'postgresql', 'redis', 'kafka',
-            'spark', 'hadoop', 'jenkins', 'ci/cd', 'agile', 'scrum',
-            # Testing skills
-            'testing', 'tester', 'qa', 'quality assurance', 'automation',
-            'selenium', 'junit', 'testng', 'pytest', 'jest', 'mocha',
-            'manual testing', 'functional testing', 'regression testing',
-            'integration testing', 'unit testing', 'smoke testing'
-        }
     
     def extract_text_from_pdf(self, file_path: str) -> str:
         """Extract text from PDF file"""
@@ -100,6 +85,51 @@ class ResumeParser:
             print(error_msg)
             raise ValueError(error_msg)
     
+    def extract_text_from_doc(self, file_path: str) -> str:
+        """Extract text from old .doc format (Word 97-2003)"""
+        
+        # Method 1: Try docx2txt first (works for some .doc files)
+        try:
+            text = docx2txt.process(file_path)
+            if text and text.strip():
+                return text
+        except Exception:
+            pass
+        
+        # Method 2: Try using Word COM automation (Windows only)
+        try:
+            import win32com.client
+            
+            word = win32com.client.Dispatch("Word.Application")
+            word.Visible = False
+            
+            # Open document with absolute path
+            doc = word.Documents.Open(os.path.abspath(file_path))
+            text = doc.Content.Text
+            
+            # Close document and Word
+            doc.Close(False)
+            word.Quit()
+            
+            if text and text.strip():
+                return text
+        except ImportError:
+            pass
+        except Exception:
+            try:
+                word.Quit()
+            except:
+                pass
+            except:
+                pass
+        
+        # If both methods fail, give clear instructions
+        raise ValueError(
+            "Unable to extract text from .doc file. "
+            "Please convert to .docx format: "
+            "Open in Word → File → Save As → Word Document (*.docx)"
+        )
+    
     def extract_text_from_image(self, file_path: str) -> str:
         """Extract text from image using OCR"""
         if not OCR_AVAILABLE:
@@ -124,12 +154,7 @@ class ResumeParser:
         elif file_lower.endswith('.docx'):
             return self.extract_text_from_docx(file_path)
         elif file_lower.endswith('.doc'):
-            # Old .doc format not supported - provide clear error
-            raise ValueError(
-                "Old .doc format (Word 97-2003) is not supported. "
-                "Please save your resume as .docx format: "
-                "Open file in Word → File → Save As → Word Document (*.docx)"
-            )
+            return self.extract_text_from_doc(file_path)
         elif file_lower.endswith(('.jpg', '.jpeg', '.png', '.bmp', '.tiff')):
             if not OCR_AVAILABLE:
                 raise ValueError("Image support requires pytesseract installation")
@@ -137,7 +162,7 @@ class ResumeParser:
         else:
             raise ValueError(
                 f"Unsupported file format. "
-                f"Supported formats: PDF, TXT, DOCX (not .doc), JPG, PNG"
+                f"Supported formats: PDF, TXT, DOC, DOCX, JPG, PNG"
             )
     
     def extract_email(self, text: str) -> str:
@@ -161,27 +186,30 @@ class ResumeParser:
     
     def extract_skills(self, text: str) -> List[str]:
         """
-        Extract skills from resume text
-        Uses NLP processing + pattern matching
+        Extract skills using PURE NLP - NO HARDCODED LISTS!
+        Uses: Tokenization, Lemmatization, and Keyword Extraction
         """
-        # Process text with NLP
-        processed_tokens = self.nlp.process(text.lower())
+        # Step 1: Use NLP keyword extraction (TF-based importance)
+        keywords = self.nlp.extract_keywords(text, top_n=25)
         
-        # Find skills in processed text
-        found_skills = []
+        # Step 2: Tokenize and Lemmatize
+        tokens = self.nlp.tokenize(text.lower())
+        lemmatized = self.nlp.lemmatize(text.lower())
         
-        # Check for exact matches
-        for skill in self.common_skills:
-            skill_tokens = skill.split()
-            if len(skill_tokens) == 1:
-                if skill in processed_tokens:
-                    found_skills.append(skill)
-            else:
-                # Multi-word skills
-                if skill in text.lower():
-                    found_skills.append(skill)
+        # Step 3: Filter for technical terms (length > 2, alphanumeric)
+        skills = []
+        for term in keywords:
+            if len(term) > 2 and any(c.isalnum() for c in term):
+                skills.append(term)
         
-        return list(set(found_skills))
+        # Step 4: Add lemmatized tokens that appear frequently
+        for token in set(lemmatized):
+            if len(token) > 2 and token not in skills:
+                # Check if it appears multiple times or is capitalized in original
+                if text.lower().count(token) >= 2:
+                    skills.append(token)
+        
+        return list(set(skills))[:30]  # Return top 30 skills
     
     def extract_experience(self, text: str) -> str:
         """

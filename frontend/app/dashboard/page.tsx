@@ -203,7 +203,7 @@ export default function Dashboard() {
               <input
                 type="file"
                 multiple
-                accept=".pdf,.txt,.docx,.jpg,.jpeg,.png"
+                accept=".pdf,.txt,.doc,.docx,.jpg,.jpeg,.png"
                 onChange={handleFileChange}
                 className="hidden"
                 id="file-upload"
@@ -217,13 +217,10 @@ export default function Dashboard() {
                   Click to upload or drag and drop
                 </p>
                 <p className="text-sm text-gray-600">
-                  📁 PDF, TXT, DOCX, JPG, PNG
+                  📁 PDF, TXT, DOC, DOCX, JPG, PNG
                 </p>
                 <p className="text-xs text-blue-600 mt-2">
                   ✨ Multiple files supported
-                </p>
-                <p className="text-xs text-amber-600 mt-1">
-                  ⚠️ .doc files not supported - save as .docx
                 </p>
               </label>
             </div>

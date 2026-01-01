@@ -37,12 +37,13 @@ class ResumeMatcher:
     Uses Levenshtein distance for similarity matching
     """
     
-    def __init__(self, similarity_threshold: float = 0.75):
+    def __init__(self, similarity_threshold: float = 0.60):
         """
         Initialize matcher
         
         Args:
             similarity_threshold: Minimum similarity score (0-1) to consider a match
+                                 Lowered to 0.60 for fuzzy matching (tester~testing=57%)
                                  Lowered to 0.75 for better fuzzy matching
         """
         self.threshold = similarity_threshold

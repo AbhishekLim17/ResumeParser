@@ -49,6 +49,17 @@ Thumbs.db
 temp_*
 *.tmp
 
+# Test files with sensitive data
+**/test_full_workflow.py
+**/sample_resume.txt
+**/*-resume*.doc
+**/*-resume*.docx
+
+# Logs and debug
+*.log
+*.bak
+*.swp
+
 # Logs
 *.log
 npm-debug.log*

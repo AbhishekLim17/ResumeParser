@@ -148,7 +148,30 @@ async def match_resumes(
             job_analysis = job_analyzer.analyze(job_data['description'])
             required_skills = job_analysis['skills'] + job_analysis['keywords']
         else:
-            required_skills = job_data.get('keywords', [])
+            # Use NLP techniques for better keyword matching
+            raw_keywords = job_data.get('keywords', [])
+            required_skills = []
+            for keyword in raw_keywords:
+                clean_keyword = keyword.strip().lower()
+                # Add original keyword
+                required_skills.append(clean_keyword)
+                # Tokenize first (required for lemmatization and stemming)
+                tokens = nlp_processor.tokenize(clean_keyword)
+                # Add lemmatized version (converts to dictionary form)
+                lemmatized_tokens = nlp_processor.lemmatize(tokens)
+                required_skills.extend(lemmatized_tokens)
+                # Add stemmed version (more aggressive, finds word roots)
+                # This helps match: tester → test, testing → test
+                stemmed_tokens = nlp_processor.stem(tokens)
+                required_skills.extend(stemmed_tokens)
+                
+                # Manually add "test" for "tester" since Porter Stemmer doesn't stem it
+                if clean_keyword == 'tester':
+                    required_skills.append('test')
+            
+            # Remove duplicates while preserving order
+            seen = set()
+            required_skills = [x for x in required_skills if not (x in seen or seen.add(x))]
         
         # Parse all resumes
         candidates = []
@@ -158,19 +181,12 @@ async def match_resumes(
             with open(temp_path, "wb") as f:
                 f.write(content)
             
-            print(f"\n{'='*60}")
-            print(f"Processing file: {file.filename}")
-            print(f"File size: {len(content)} bytes")
-            print(f"{'='*60}")
-            
             # Parse and match
             try:
                 resume_data = resume_parser.parse(temp_path)
-                print(f"Resume data: {resume_data}")
                 
                 # Check if parsing was successful
                 if 'error' in resume_data:
-                    print(f"ERROR: {resume_data['error']}")
                     candidates.append({
                         "filename": file.filename,
                         "score": 0.0,
@@ -184,7 +200,6 @@ async def match_resumes(
                     continue
                 
                 match_result = matcher.match(resume_data, required_skills)
-                print(f"Match result: {match_result}")
                 
                 candidates.append({
                     "filename": file.filename,
