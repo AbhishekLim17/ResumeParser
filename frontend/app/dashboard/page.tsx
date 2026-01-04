@@ -127,14 +127,12 @@ export default function Dashboard() {
                 Welcome back, <span className="text-blue-600 font-semibold">{user?.email || 'Guest User'}</span>
               </p>
             </div>
-            {user && (
-              <button
-                onClick={handleSignOut}
-                className="px-8 py-3 bg-gradient-to-r from-gray-700 to-gray-900 text-white rounded-xl font-semibold hover:shadow-xl hover:scale-105 transition-all duration-300"
-              >
-                Sign Out
-              </button>
-            )}
+            <button
+              onClick={handleSignOut}
+              className="px-8 py-3 bg-gradient-to-r from-gray-700 to-gray-900 text-white rounded-xl font-semibold hover:shadow-xl hover:scale-105 transition-all duration-300"
+            >
+              {user ? 'Sign Out' : 'Back to Login'}
+            </button>
           </div>
         </div>
 
