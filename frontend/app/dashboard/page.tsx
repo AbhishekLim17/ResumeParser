@@ -131,7 +131,7 @@ export default function Dashboard() {
               onClick={handleSignOut}
               className="px-8 py-3 bg-gradient-to-r from-gray-700 to-gray-900 text-white rounded-xl font-semibold hover:shadow-xl hover:scale-105 transition-all duration-300"
             >
-              {user ? 'Sign Out' : 'Back to Login'}
+              Sign Out
             </button>
           </div>
         </div>
@@ -255,9 +255,6 @@ export default function Dashboard() {
               <>🚀 Match Resumes</>
             )}
           </button>
-          <p className="text-gray-600 text-sm mt-3">
-            ⚡ Using NLP: Tokenization • Lemmatization • Levenshtein Distance
-          </p>
         </div>
 
         {/* Results */}
