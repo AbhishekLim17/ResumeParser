@@ -102,13 +102,6 @@ export default function Home() {
             theme="light"
           />
         </div>
-
-        <div className="mt-6 text-center text-sm text-gray-600">
-          <p>Built with NLP techniques:</p>
-          <p className="text-xs mt-1">
-            Tokenization • Lemmatization • Levenshtein Distance
-          </p>
-        </div>
       </div>
     </div>
   )
