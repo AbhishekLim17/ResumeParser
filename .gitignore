@@ -49,6 +49,21 @@ Thumbs.db
 temp_*
 *.tmp
 
+# Internal documentation (not for public)
+DEPLOYMENT_READY.md
+FIXES_APPLIED.md
+PRODUCTION_CHECKLIST.md
+SECURITY_REVIEW.md
+TESTING.md
+UNIVERSAL_TEST_RESULTS.md
+PROJECT_SUMMARY.md
+
+# Test/generation scripts (not needed in production)
+generate_test_resumes.py
+generate_universal_resumes.py
+test_production.py
+test_universal.py
+
 # Test files with sensitive data
 **/test_full_workflow.py
 **/sample_resume.txt
