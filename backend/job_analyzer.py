@@ -62,26 +62,37 @@ class JobAnalyzer:
         # Step 4: Look for capitalized terms (often technologies/skills)
         words = text.split()
         for word in words:
-            clean_word = re.sub(r'[^a-zA-Z0-9+#]', '', word)
+            clean_word = re.sub(r'[^a-zA-Z0-9+#.]', '', word)
             if clean_word and len(clean_word) > 2:
-                if word[0].isupper() or '+' in word or '#' in word:
+                if word[0].isupper() or '+' in word or '#' in word or '.' in word:
                     found_skills.append(clean_word.lower())
         
-        # Extract from "Skills:" section if present
-        skills_section = re.search(
-            r'(?:skills?|requirements?|qualifications?)[\s:]+([^\n]+)',
-            text.lower(),
-            re.IGNORECASE
-        )
+        # Step 5: Extract technical terms with special patterns
+        technical_patterns = [
+            r'\b[A-Z][a-zA-Z]*\.js\b',  # Node.js, React.js
+            r'\b[A-Z][a-zA-Z]+\+\+\b',  # C++
+            r'\b[A-Z]#\b',              # C#, F#
+            r'\b[A-Z][a-zA-Z]+Script\b', # JavaScript, TypeScript
+            r'\b[A-Z]{2,}\b',           # AWS, SQL, API
+            r'\b[A-Z][a-z]+(?:[A-Z][a-z]+)+\b',  # PostgreSQL, MongoDB
+        ]
         
-        if skills_section:
-            section_text = skills_section.group(1)
-            # Extract skills from this section
-            for skill in self.tech_skills:
-                if skill in section_text:
-                    found_skills.append(skill)
+        for pattern in technical_patterns:
+            matches = re.findall(pattern, text)
+            found_skills.extend([m.lower() for m in matches])
         
-        return list(set(found_skills))
+        # Step 6: Multi-word technical terms
+        multi_word_patterns = [
+            r'\b(?:machine learning|deep learning|data science|cloud computing|'
+            r'web development|full stack|front end|back end|software engineering|'
+            r'ci/cd|devops|microservices|rest api|graphql)\b'
+        ]
+        
+        for pattern in multi_word_patterns:
+            matches = re.findall(pattern, text.lower())
+            found_skills.extend(matches)
+        
+        return list(set(found_skills))[:40]  # Return top 40 unique skills
     
     def extract_experience(self, text: str) -> str:
         """
