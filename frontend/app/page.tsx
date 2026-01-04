@@ -84,9 +84,6 @@ export default function Home() {
             >
               🚀 Quick Start (Skip Login)
             </button>
-            <p className="text-xs text-center text-gray-500 mt-2">
-              For testing - no authentication required
-            </p>
           </div>
 
           <div className="relative my-6">
@@ -104,12 +101,6 @@ export default function Home() {
             providers={[]}
             theme="light"
           />
-        </div>
-
-        <div className="mt-6 text-center text-sm text-gray-600">
-          <p className="text-xs">
-            ⚡ Using NLP: Tokenization • Lemmatization • Levenshtein Distance
-          </p>
         </div>
       </div>
     </div>
