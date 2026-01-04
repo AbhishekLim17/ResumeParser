@@ -1,0 +1,157 @@
+Michael Chen
+DevOps Engineer & Cloud Architect
+
+michael.chen@cloudops.io | (555) 123-8899 | Seattle, WA
+
+========================================
+PROFESSIONAL SUMMARY
+========================================
+Certified DevOps Engineer with 6+ years experience designing and implementing cloud infrastructure, automation pipelines, and containerized applications. Expert in AWS, Kubernetes, Terraform, and CI/CD best practices. Strong background in system administration, security hardening, and cost optimization.
+
+========================================
+CORE COMPETENCIES
+========================================
+Cloud Platforms: AWS, Azure, Google Cloud Platform (GCP)
+Containers & Orchestration: Docker, Kubernetes, ECS, EKS, Docker Swarm
+Infrastructure as Code: Terraform, CloudFormation, Ansible, Pulumi
+CI/CD Tools: Jenkins, GitLab CI, GitHub Actions, CircleCI, ArgoCD
+Monitoring & Logging: Prometheus, Grafana, ELK Stack, Datadog, CloudWatch
+Scripting: Bash, Python, PowerShell, Go
+Version Control: Git, GitHub, GitLab, Bitbucket
+Security: IAM, Security Groups, Secrets Management, SSL/TLS, Vault
+
+========================================
+WORK EXPERIENCE
+========================================
+
+Senior DevOps Engineer
+CloudScale Technologies | Seattle, WA
+March 2021 - Present
+
+• Designed and deployed multi-region AWS infrastructure supporting 500K daily active users
+• Implemented Infrastructure as Code using Terraform, reducing provisioning time from hours to minutes
+• Built automated CI/CD pipelines with Jenkins and GitHub Actions, achieving 50+ deployments per week
+• Migrated monolithic applications to microservices architecture using Kubernetes and Docker
+• Set up comprehensive monitoring and alerting using Prometheus, Grafana, and PagerDuty
+• Reduced cloud infrastructure costs by 40% through resource optimization and auto-scaling policies
+• Led security audits and implemented compliance measures (SOC2, GDPR, HIPAA)
+• Mentored team of 4 junior DevOps engineers on best practices and tooling
+
+Technologies: AWS (EC2, S3, RDS, Lambda, ECS, EKS), Kubernetes, Docker, Terraform, Jenkins, Python, Bash
+
+DevOps Engineer
+TechFlow Systems | Portland, OR
+January 2019 - February 2021
+
+• Automated deployment processes reducing manual deployment time by 80%
+• Containerized legacy applications using Docker and deployed to Kubernetes clusters
+• Implemented GitOps workflow using ArgoCD for declarative infrastructure management
+• Created monitoring dashboards and alerts using ELK Stack and Grafana
+• Managed MySQL and PostgreSQL databases including backup and disaster recovery
+• Collaborated with development teams to optimize application performance
+• Wrote Python scripts for automation of routine maintenance tasks
+
+Technologies: Docker, Kubernetes, Jenkins, Ansible, AWS, PostgreSQL, Python, GitLab CI
+
+Systems Administrator
+DataCore Solutions | San Francisco, CA  
+June 2017 - December 2018
+
+• Maintained Linux servers (Ubuntu, CentOS) ensuring 99.9% uptime
+• Configured and managed Apache and Nginx web servers
+• Implemented backup solutions and disaster recovery procedures
+• Automated system monitoring and alerting using Nagios and Shell scripts
+• Managed user accounts, permissions, and security policies
+• Performed system upgrades, patch management, and security hardening
+
+Technologies: Linux, Apache, Nginx, MySQL, Bash scripting, Nagios
+
+========================================
+EDUCATION
+========================================
+
+Bachelor of Science in Information Technology
+University of Washington | 2013 - 2017
+Major: Network Administration and Security
+GPA: 3.6/4.0
+
+========================================
+CERTIFICATIONS
+========================================
+
+• AWS Certified Solutions Architect - Professional (2023)
+• Certified Kubernetes Administrator (CKA) - 2022
+• AWS Certified DevOps Engineer - Professional (2021)
+• HashiCorp Certified: Terraform Associate (2022)
+• AWS Certified Security - Specialty (2023)
+• Linux Foundation Certified System Administrator (LFCS) - 2020
+
+========================================
+NOTABLE ACHIEVEMENTS
+========================================
+
+• Successfully led cloud migration project moving 50+ applications from on-premise to AWS with zero downtime
+• Reduced deployment failures from 15% to less than 2% through improved CI/CD practices
+• Implemented blue-green deployment strategy reducing rollback time from 2 hours to 5 minutes
+• Architected disaster recovery solution meeting RTO of 1 hour and RPO of 15 minutes
+• Achieved 99.99% uptime for production systems through proactive monitoring and automation
+
+========================================
+TECHNICAL PROJECTS
+========================================
+
+Kubernetes Cluster Management Platform
+• Built internal platform for managing multiple Kubernetes clusters across environments
+• Implemented RBAC and network policies for enhanced security
+• Created custom Helm charts for standardized application deployments
+• Tech Stack: Kubernetes, Helm, Python, React, PostgreSQL
+
+Automated Compliance Checker
+• Developed tool to automatically audit AWS resources for compliance violations
+• Integrated with Slack for real-time notifications of policy breaches
+• Reduced compliance review time from days to hours
+• Tech Stack: Python, Boto3, Lambda, CloudWatch Events
+
+Infrastructure Cost Optimizer
+• Created analytics dashboard showing cloud resource utilization and cost trends
+• Identified underutilized resources saving $50K monthly
+• Automated resource tagging and cost allocation
+• Tech Stack: Python, AWS Cost Explorer API, Grafana, InfluxDB
+
+========================================
+SKILLS MATRIX
+========================================
+
+Expert Level:
+- AWS Services (EC2, S3, RDS, Lambda, ECS, EKS, CloudFormation)
+- Docker & Kubernetes
+- Terraform
+- Linux Administration
+- CI/CD Pipelines
+
+Advanced Level:
+- Python Scripting
+- Jenkins
+- Ansible
+- Monitoring Tools (Prometheus, Grafana)
+- GitOps Practices
+
+Intermediate Level:
+- Azure, GCP
+- Go Programming
+- Security Auditing
+- Database Administration
+
+========================================
+LANGUAGES
+========================================
+English (Native)
+Mandarin Chinese (Fluent)
+
+========================================
+PROFESSIONAL AFFILIATIONS
+========================================
+• Member, Cloud Native Computing Foundation (CNCF)
+• Contributor to open-source DevOps tools on GitHub
+• Regular speaker at DevOps meetups and conferences
+• Technical blog writer on Medium (5K+ followers)

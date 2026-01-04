@@ -170,11 +170,12 @@ class ResumeParser:
         return match.group(0) if match else ""
     
     def extract_phone(self, text: str) -> str:
-        """Extract phone number using regex"""
+        """Extract phone number using regex - multiple formats supported"""
         patterns = [
-            r'\+?\d{1,3}[-.\s]?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}',
-            r'\d{10}',
-            r'\d{3}[-.\s]\d{3}[-.\s]\d{4}'
+            r'\(?\d{3}\)?\s*[-.\s]?\d{3}[-.\s]?\d{4}',  # (555) 123-4567 or (555)123-4567 or 555-123-4567
+            r'\+?\d{1,3}[-.\s]?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}',  # +1-555-123-4567
+            r'\d{10}',  # 5551234567
+            r'\d{3}[-.\s]\d{3}[-.\s]\d{4}'  # 555-123-4567
         ]
         for pattern in patterns:
             match = re.search(pattern, text)
@@ -184,30 +185,65 @@ class ResumeParser:
     
     def extract_skills(self, text: str) -> List[str]:
         """
-        Extract skills using PURE NLP - NO HARDCODED LISTS!
-        Uses: Tokenization, Lemmatization, and Keyword Extraction
+        Extract skills using improved NLP + technical term preservation
+        Captures both processed and original technical terms
         """
-        # Step 1: Use NLP keyword extraction (TF-based importance)
-        keywords = self.nlp.extract_keywords(text, top_n=25)
+        skills = []
         
-        # Step 2: Tokenize and Lemmatize
+        # Step 1: Extract keywords using NLP (TF-based importance)
+        keywords = self.nlp.extract_keywords(text, top_n=30)
+        skills.extend(keywords)
+        
+        # Step 2: Capture technical terms with special characters (e.g., Node.js, C++, C#)
+        # Look for capitalized words and technical patterns
+        technical_patterns = [
+            r'\b[A-Z][a-zA-Z]*\.js\b',  # Node.js, Next.js, Vue.js
+            r'\b[A-Z][a-zA-Z]+\+\+\b',  # C++
+            r'\b[A-Z]#\b',              # C#, F#
+            r'\b[A-Z][a-zA-Z]+Script\b', # JavaScript, TypeScript
+            r'\b[A-Z]{2,}\b',           # AWS, SQL, API, HTML, CSS
+            r'\b[A-Z][a-z]+(?:[A-Z][a-z]+)+\b',  # CamelCase: PostgreSQL, MongoDB
+        ]
+        
+        for pattern in technical_patterns:
+            matches = re.findall(pattern, text)
+            skills.extend([m.lower() for m in matches])
+        
+        # Step 3: Extract common multi-word technical terms
+        multi_word_patterns = [
+            r'\b(?:machine learning|deep learning|data science|cloud computing|'
+            r'web development|full stack|front end|back end|software engineering|'
+            r'ci/cd|devops|microservices|rest api|graphql)\b'
+        ]
+        
+        for pattern in multi_word_patterns:
+            matches = re.findall(pattern, text.lower())
+            skills.extend(matches)
+        
+        # Step 4: Tokenize and find frequently mentioned terms
         tokens = self.nlp.tokenize(text.lower())
         lemmatized = self.nlp.lemmatize(text.lower())
         
-        # Step 3: Filter for technical terms (length > 2, alphanumeric)
-        skills = []
-        for term in keywords:
-            if len(term) > 2 and any(c.isalnum() for c in term):
-                skills.append(term)
-        
-        # Step 4: Add lemmatized tokens that appear frequently
         for token in set(lemmatized):
             if len(token) > 2 and token not in skills:
-                # Check if it appears multiple times or is capitalized in original
+                # Add if appears multiple times
                 if text.lower().count(token) >= 2:
                     skills.append(token)
         
-        return list(set(skills))[:30]  # Return top 30 skills
+        # Step 5: Clean and deduplicate
+        unique_skills = []
+        seen = set()
+        for skill in skills:
+            skill_clean = skill.strip().lower()
+            if skill_clean and len(skill_clean) > 1 and skill_clean not in seen:
+                # Filter out common words that aren't skills
+                common_words = {'the', 'and', 'for', 'with', 'from', 'this', 'that', 
+                               'have', 'has', 'had', 'been', 'were', 'are', 'was'}
+                if skill_clean not in common_words:
+                    unique_skills.append(skill_clean)
+                    seen.add(skill_clean)
+        
+        return unique_skills[:40]  # Return top 40 skills
     
     def extract_experience(self, text: str) -> str:
         """

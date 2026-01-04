@@ -1,0 +1,64 @@
+Emily Rodriguez
+Data Scientist
+
+Contact Information:
+Email: emily.rodriguez@email.com
+Phone: (408) 765-4321
+Location: San Francisco, CA
+LinkedIn: linkedin.com/in/emily-rodriguez
+
+Professional Summary:
+Results-driven Data Scientist with 4+ years of experience in machine learning, statistical analysis, and data visualization. Expert in Python, R, and SQL with proven track record of building predictive models that drive business decisions. Passionate about extracting insights from complex datasets and communicating findings to stakeholders.
+
+Work Experience:
+
+Senior Data Scientist | TechCorp Analytics | Jan 2023 - Present
+- Developed machine learning models achieving 92% accuracy in customer churn prediction
+- Built real-time recommendation system serving 5M+ users daily
+- Led cross-functional team of 5 data analysts and engineers
+- Reduced model training time by 40% through optimization techniques
+- Technologies: Python, TensorFlow, PyTorch, Apache Spark, AWS SageMaker
+
+Data Scientist | DataInsights Inc. | Jun 2021 - Dec 2022
+- Created predictive models for sales forecasting with 85% accuracy
+- Performed A/B testing and statistical analysis for product features
+- Developed automated ETL pipelines processing 100GB+ daily
+- Collaborated with business teams to translate requirements into analytics solutions
+- Tools: Python, scikit-learn, pandas, Tableau, PostgreSQL
+
+Junior Data Analyst | Analytics Solutions | Jan 2020 - May 2021
+- Conducted exploratory data analysis and created dashboards
+- Automated reporting processes saving 20 hours/week
+- Performed data cleaning and preprocessing for ML projects
+- Supported senior data scientists in model development
+
+Education:
+Master of Science in Data Science | Stanford University | 2019
+Bachelor of Science in Computer Science | UC Berkeley | 2017
+
+Technical Skills:
+Programming Languages: Python, R, SQL, Java, Scala
+Machine Learning: Scikit-learn, TensorFlow, PyTorch, Keras, XGBoost
+Data Processing: pandas, NumPy, Apache Spark, Hadoop
+Visualization: Tableau, Matplotlib, Seaborn, Plotly, Power BI
+Databases: PostgreSQL, MongoDB, MySQL, Redis
+Cloud: AWS (SageMaker, EC2, S3), Google Cloud Platform, Azure
+Statistics: Hypothesis Testing, A/B Testing, Regression Analysis, Time Series
+Tools: Jupyter, Git, Docker, Kubernetes, Airflow
+
+Certifications:
+- AWS Certified Machine Learning Specialty (2023)
+- TensorFlow Developer Certificate (2022)
+- Google Data Analytics Professional Certificate (2021)
+
+Projects:
+- Customer Segmentation: K-means clustering on 2M customer records
+- Sentiment Analysis: NLP model analyzing social media data with 88% accuracy
+- Fraud Detection: Anomaly detection system reducing fraud by 35%
+
+Publications:
+- "Deep Learning Approaches to Customer Behavior Prediction" - Data Science Journal, 2023
+- "Optimizing Recommendation Systems at Scale" - IEEE Conference, 2022
+
+Languages:
+English (Native), Spanish (Fluent)

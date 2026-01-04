@@ -1,0 +1,84 @@
+Sarah Mitchell
+Senior Full-Stack Developer
+
+Contact Information:
+Email: sarah.mitchell@techmail.com
+Phone: +1 (555) 987-6543
+Location: San Francisco, CA
+
+PROFESSIONAL SUMMARY
+Highly skilled Full-Stack Developer with 5+ years of experience building scalable web applications and microservices. Expert in modern JavaScript frameworks, cloud architecture, and agile methodologies. Proven track record of leading development teams and delivering high-quality software solutions.
+
+TECHNICAL SKILLS
+Languages: JavaScript, TypeScript, Python, Java, SQL, HTML5, CSS3
+Frontend: React, Next.js, Vue.js, Angular, Redux, Tailwind CSS, Material-UI
+Backend: Node.js, Express, Django, Flask, Spring Boot, FastAPI
+Databases: PostgreSQL, MongoDB, MySQL, Redis, DynamoDB
+Cloud & DevOps: AWS, Docker, Kubernetes, Jenkins, CI/CD, Terraform
+Testing: Jest, PyTest, Selenium, Cypress, Unit Testing, Integration Testing
+Tools: Git, JIRA, Postman, VS Code, Figma, Slack
+
+PROFESSIONAL EXPERIENCE
+
+Senior Full-Stack Developer | TechCorp Solutions
+San Francisco, CA | January 2022 - Present
+• Led development team of 8 engineers building enterprise SaaS platform serving 100K+ users
+• Architected and implemented microservices infrastructure using Node.js, PostgreSQL, and AWS
+• Reduced application load time by 60% through performance optimization and caching strategies
+• Implemented CI/CD pipelines using Jenkins and Docker, reducing deployment time by 75%
+• Mentored junior developers and conducted code reviews to maintain code quality standards
+• Collaborated with product managers and designers using Agile/Scrum methodologies
+• Technologies: React, TypeScript, Node.js, PostgreSQL, AWS, Docker, Kubernetes
+
+Full-Stack Developer | StartupHub Inc.
+Palo Alto, CA | June 2019 - December 2021
+• Developed RESTful APIs and GraphQL endpoints serving mobile and web applications
+• Built responsive frontend interfaces using React and Redux with excellent user experience
+• Integrated third-party services including Stripe payments, SendGrid emails, and Auth0
+• Wrote comprehensive unit tests and integration tests achieving 90% code coverage
+• Participated in daily standups, sprint planning, and retrospectives
+• Technologies: React, Node.js, MongoDB, AWS Lambda, Jest, Cypress
+
+Junior Developer | CodeCraft Agency
+San Jose, CA | July 2018 - May 2019
+• Maintained and enhanced existing web applications for multiple clients
+• Developed new features using HTML, CSS, JavaScript, and jQuery
+• Fixed bugs and improved application performance based on user feedback
+• Learned modern development practices including version control with Git
+• Technologies: HTML, CSS, JavaScript, jQuery, PHP, MySQL
+
+EDUCATION
+
+Bachelor of Science in Computer Science
+University of California, Berkeley | 2014 - 2018
+GPA: 3.7/4.0
+Relevant Coursework: Data Structures, Algorithms, Web Development, Database Systems, Software Engineering
+
+CERTIFICATIONS & TRAINING
+• AWS Certified Solutions Architect - Associate (2023)
+• MongoDB Certified Developer Associate (2022)
+• Certified Kubernetes Application Developer (CKAD) (2021)
+• Google Cloud Professional Cloud Architect (2023)
+
+PROJECTS
+
+E-Commerce Platform (Personal Project)
+• Built full-stack online marketplace with user authentication, product management, and payment processing
+• Implemented real-time notifications using WebSockets and Redis pub/sub
+• Deployed on AWS using ECS, RDS, and CloudFront CDN
+• Technologies: Next.js, Node.js, PostgreSQL, Redis, Stripe API, AWS
+
+Task Management Dashboard
+• Developed collaborative project management tool with drag-and-drop interface
+• Implemented real-time collaboration features using Socket.io
+• Integrated with external APIs for calendar sync and file storage
+• Technologies: React, Express, MongoDB, Socket.io, AWS S3
+
+LANGUAGES
+English (Native), Spanish (Professional working proficiency)
+
+ADDITIONAL INFORMATION
+• Open source contributor to React ecosystem libraries
+• Speaker at local JavaScript meetups and tech conferences
+• Passionate about mentoring and knowledge sharing
+• Continuous learner staying updated with latest technologies
