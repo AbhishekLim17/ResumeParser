@@ -5,6 +5,27 @@ Track errors and lessons learned during development to avoid repetition.
 
 ---
 
+## 2026-01-04 - Universal Testing & GitHub Deployment
+
+**Problem:**
+- ImportError when running universal tests (wrong function name)
+- TypeError in matching tests (returned dict instead of score)
+
+**Solution:**
+- Updated test imports to use `ResumeParser` class instead of `parse_resume` function
+- Fixed matcher API calls to extract `score` from returned dict
+- Adjusted test thresholds for edge cases (50% vs >50%)
+
+**Lesson:**
+- Always verify API signatures before writing tests
+- Check return types (dict vs primitive values)
+- Use >= instead of > for boundary conditions
+
+**Related Files:**
+- test_universal.py
+
+---
+
 ## 2026-01-01 - Initial Project Setup
 
 **Context:**
