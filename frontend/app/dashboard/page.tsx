@@ -28,9 +28,9 @@ export default function Dashboard() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser(session.user)
-      } else {
-        router.push('/')
       }
+      // Allow guest access - no redirect if no session
+      // This enables "Skip Login" functionality for testing
     })
   }, [router])
 
@@ -110,16 +110,8 @@ export default function Dashboard() {
     }
   }
 
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-400 mx-auto"></div>
-          <p className="mt-4 text-gray-300">Loading...</p>
-        </div>
-      </div>
-    )
-  }
+  // Remove loading screen - allow guest access immediately
+  // if (!user) { ... }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 p-6">
@@ -131,14 +123,18 @@ export default function Dashboard() {
               <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">
                 📄 Resume Parser Dashboard
               </h1>
-              <p className="text-gray-600 text-lg">Welcome back, <span className="text-blue-600 font-semibold">{user.email}</span></p>
+              <p className="text-gray-600 text-lg">
+                Welcome back, <span className="text-blue-600 font-semibold">{user?.email || 'Guest User'}</span>
+              </p>
             </div>
-            <button
-              onClick={handleSignOut}
-              className="px-8 py-3 bg-gradient-to-r from-gray-700 to-gray-900 text-white rounded-xl font-semibold hover:shadow-xl hover:scale-105 transition-all duration-300"
-            >
-              Sign Out
-            </button>
+            {user && (
+              <button
+                onClick={handleSignOut}
+                className="px-8 py-3 bg-gradient-to-r from-gray-700 to-gray-900 text-white rounded-xl font-semibold hover:shadow-xl hover:scale-105 transition-all duration-300"
+              >
+                Sign Out
+              </button>
+            )}
           </div>
         </div>
 
