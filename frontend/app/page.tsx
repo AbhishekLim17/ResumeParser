@@ -91,15 +91,16 @@ export default function Home() {
               <div className="w-full border-t border-gray-300"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Or login with email</span>
+              <span className="px-2 bg-white text-gray-500">Or continue with</span>
             </div>
           </div>
 
           <Auth
             supabaseClient={supabase}
             appearance={{ theme: ThemeSupa }}
-            providers={[]}
+            providers={['google']}
             theme="light"
+            redirectTo={typeof window !== 'undefined' ? `${window.location.origin}/dashboard` : undefined}
           />
         </div>
       </div>
