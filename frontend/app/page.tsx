@@ -76,25 +76,6 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Quick Access Button for Testing */}
-          <div className="mb-6">
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
-            >
-              🚀 Quick Start (Skip Login)
-            </button>
-          </div>
-
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Or continue with</span>
-            </div>
-          </div>
-
           <Auth
             supabaseClient={supabase}
             appearance={{ theme: ThemeSupa }}
