@@ -117,19 +117,19 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Animated Header */}
-        <div className="backdrop-blur-xl bg-white border border-gray-200 rounded-2xl p-8 shadow-lg animate-fadeIn">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">
+        <div className="backdrop-blur-xl bg-white border border-gray-200 rounded-2xl p-4 md:p-8 shadow-lg animate-fadeIn">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex-1">
+              <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">
                 📄 Resume Parser Dashboard
               </h1>
-              <p className="text-gray-600 text-lg">
+              <p className="text-gray-600 text-sm md:text-lg">
                 Welcome back, <span className="text-blue-600 font-semibold">{user?.email || 'Guest User'}</span>
               </p>
             </div>
             <button
               onClick={handleSignOut}
-              className="px-8 py-3 bg-gradient-to-r from-gray-700 to-gray-900 text-white rounded-xl font-semibold hover:shadow-xl hover:scale-105 transition-all duration-300"
+              className="w-full sm:w-auto px-6 py-2.5 md:px-8 md:py-3 bg-gradient-to-r from-gray-700 to-gray-900 text-white rounded-xl font-semibold hover:shadow-xl hover:scale-105 transition-all duration-300 text-sm md:text-base whitespace-nowrap"
             >
               Sign Out
             </button>
