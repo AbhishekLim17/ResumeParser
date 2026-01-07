@@ -308,7 +308,7 @@ async def match_and_save_resumes(
             }
         
         # Save job search
-        saved_job = await db_service.save_job_search(job_search_data)
+        saved_job = db_service.save_job_search(job_search_data)
         job_search_id = saved_job['id']
         
         # Parse all resumes and save to database
@@ -338,7 +338,7 @@ async def match_and_save_resumes(
                         'raw_text': resume_data.get('raw_text'),
                         'parsed_data': resume_data
                     }
-                    saved_resume = await db_service.save_resume(resume_db_data)
+                    saved_resume = db_service.save_resume(resume_db_data)
                     resume_id = saved_resume['id']
                     
                     # Match resume
@@ -353,7 +353,7 @@ async def match_and_save_resumes(
                         'matched_skills': match_result['matched_skills'],
                         'missing_skills': [s for s in required_skills if s not in match_result['matched_skills']]
                     }
-                    await db_service.save_match_result(match_db_data)
+                    db_service.save_match_result(match_db_data)
                     
                     candidates.append({
                         "filename": file.filename,
@@ -397,7 +397,7 @@ async def get_resumes(
     """Get all resumes for the authenticated user"""
     try:
         user_id = get_user_id(authorization)
-        resumes = await db_service.get_user_resumes(user_id, limit, offset)
+        resumes = db_service.get_user_resumes(user_id, limit, offset)
         return {"resumes": resumes}
     except Exception as e:
         raise HTTPException(500, f"Failed to fetch resumes: {str(e)}")
@@ -408,7 +408,7 @@ async def get_resume(resume_id: str, authorization: str = Header(None)):
     """Get a specific resume by ID"""
     try:
         user_id = get_user_id(authorization)
-        resume = await db_service.get_resume_by_id(resume_id, user_id)
+        resume = db_service.get_resume_by_id(resume_id, user_id)
         if not resume:
             raise HTTPException(404, "Resume not found")
         return resume
@@ -423,7 +423,7 @@ async def delete_resume(resume_id: str, authorization: str = Header(None)):
     """Delete a resume"""
     try:
         user_id = get_user_id(authorization)
-        success = await db_service.delete_resume(resume_id, user_id)
+        success = db_service.delete_resume(resume_id, user_id)
         if not success:
             raise HTTPException(404, "Resume not found")
         return {"message": "Resume deleted successfully"}
@@ -442,7 +442,7 @@ async def get_job_searches(
     """Get all job searches for the authenticated user"""
     try:
         user_id = get_user_id(authorization)
-        searches = await db_service.get_user_job_searches(user_id, limit, offset)
+        searches = db_service.get_user_job_searches(user_id, limit, offset)
         return {"job_searches": searches}
     except Exception as e:
         raise HTTPException(500, f"Failed to fetch job searches: {str(e)}")
@@ -457,7 +457,7 @@ async def get_matches(
     """Get all match results for the authenticated user"""
     try:
         user_id = get_user_id(authorization)
-        matches = await db_service.get_user_matches(user_id, limit, offset)
+        matches = db_service.get_user_matches(user_id, limit, offset)
         return {"matches": matches}
     except Exception as e:
         raise HTTPException(500, f"Failed to fetch matches: {str(e)}")
@@ -468,7 +468,7 @@ async def get_job_matches(job_id: str, authorization: str = Header(None)):
     """Get all matches for a specific job search"""
     try:
         user_id = get_user_id(authorization)
-        matches = await db_service.get_job_matches(job_id, user_id)
+        matches = db_service.get_job_matches(job_id, user_id)
         return {"matches": matches}
     except Exception as e:
         raise HTTPException(500, f"Failed to fetch job matches: {str(e)}")
@@ -479,7 +479,7 @@ async def get_dashboard_stats(authorization: str = Header(None)):
     """Get dashboard statistics for the authenticated user"""
     try:
         user_id = get_user_id(authorization)
-        stats = await db_service.get_dashboard_stats(user_id)
+        stats = db_service.get_dashboard_stats(user_id)
         return stats
     except Exception as e:
         raise HTTPException(500, f"Failed to fetch dashboard stats: {str(e)}")

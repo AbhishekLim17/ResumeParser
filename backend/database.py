@@ -18,7 +18,7 @@ class DatabaseService:
     
     # ==================== RESUMES ====================
     
-    async def save_resume(self, resume_data: Dict[str, Any]) -> Dict[str, Any]:
+    def save_resume(self, resume_data: Dict[str, Any]) -> Dict[str, Any]:
         """Save a resume to database"""
         try:
             response = self.client.table('resumes').insert(resume_data).execute()
@@ -27,7 +27,7 @@ class DatabaseService:
             print(f"Error saving resume: {e}")
             raise
     
-    async def get_user_resumes(self, user_id: str, limit: int = 50, offset: int = 0) -> List[Dict[str, Any]]:
+    def get_user_resumes(self, user_id: str, limit: int = 50, offset: int = 0) -> List[Dict[str, Any]]:
         """Get all resumes for a user"""
         try:
             response = self.client.table('resumes')\
@@ -41,7 +41,7 @@ class DatabaseService:
             print(f"Error fetching resumes: {e}")
             return []
     
-    async def get_resume_by_id(self, resume_id: str, user_id: str) -> Optional[Dict[str, Any]]:
+    def get_resume_by_id(self, resume_id: str, user_id: str) -> Optional[Dict[str, Any]]:
         """Get a specific resume by ID"""
         try:
             response = self.client.table('resumes')\
@@ -55,7 +55,7 @@ class DatabaseService:
             print(f"Error fetching resume: {e}")
             return None
     
-    async def delete_resume(self, resume_id: str, user_id: str) -> bool:
+    def delete_resume(self, resume_id: str, user_id: str) -> bool:
         """Delete a resume"""
         try:
             self.client.table('resumes')\
@@ -68,7 +68,7 @@ class DatabaseService:
             print(f"Error deleting resume: {e}")
             return False
     
-    async def search_resumes(self, user_id: str, query: str) -> List[Dict[str, Any]]:
+    def search_resumes(self, user_id: str, query: str) -> List[Dict[str, Any]]:
         """Search resumes by name, email, or skills"""
         try:
             # Use ilike for case-insensitive search
@@ -85,7 +85,7 @@ class DatabaseService:
     
     # ==================== JOB SEARCHES ====================
     
-    async def save_job_search(self, job_data: Dict[str, Any]) -> Dict[str, Any]:
+    def save_job_search(self, job_data: Dict[str, Any]) -> Dict[str, Any]:
         """Save a job search to database"""
         try:
             response = self.client.table('job_searches').insert(job_data).execute()
@@ -94,7 +94,7 @@ class DatabaseService:
             print(f"Error saving job search: {e}")
             raise
     
-    async def get_user_job_searches(self, user_id: str, limit: int = 50, offset: int = 0) -> List[Dict[str, Any]]:
+    def get_user_job_searches(self, user_id: str, limit: int = 50, offset: int = 0) -> List[Dict[str, Any]]:
         """Get all job searches for a user"""
         try:
             response = self.client.table('job_searches')\
@@ -108,7 +108,7 @@ class DatabaseService:
             print(f"Error fetching job searches: {e}")
             return []
     
-    async def get_job_search_by_id(self, job_id: str, user_id: str) -> Optional[Dict[str, Any]]:
+    def get_job_search_by_id(self, job_id: str, user_id: str) -> Optional[Dict[str, Any]]:
         """Get a specific job search by ID"""
         try:
             response = self.client.table('job_searches')\
@@ -124,7 +124,7 @@ class DatabaseService:
     
     # ==================== MATCH RESULTS ====================
     
-    async def save_match_result(self, match_data: Dict[str, Any]) -> Dict[str, Any]:
+    def save_match_result(self, match_data: Dict[str, Any]) -> Dict[str, Any]:
         """Save a match result to database"""
         try:
             response = self.client.table('match_results').insert(match_data).execute()
@@ -133,7 +133,7 @@ class DatabaseService:
             print(f"Error saving match result: {e}")
             raise
     
-    async def get_job_matches(self, job_search_id: str, user_id: str) -> List[Dict[str, Any]]:
+    def get_job_matches(self, job_search_id: str, user_id: str) -> List[Dict[str, Any]]:
         """Get all match results for a job search"""
         try:
             response = self.client.table('match_results')\
@@ -147,7 +147,7 @@ class DatabaseService:
             print(f"Error fetching match results: {e}")
             return []
     
-    async def get_user_matches(self, user_id: str, limit: int = 100, offset: int = 0) -> List[Dict[str, Any]]:
+    def get_user_matches(self, user_id: str, limit: int = 100, offset: int = 0) -> List[Dict[str, Any]]:
         """Get all match results for a user"""
         try:
             response = self.client.table('match_results')\
@@ -163,7 +163,7 @@ class DatabaseService:
     
     # ==================== STATISTICS ====================
     
-    async def get_dashboard_stats(self, user_id: str) -> Dict[str, Any]:
+    def get_dashboard_stats(self, user_id: str) -> Dict[str, Any]:
         """Get dashboard statistics for a user"""
         try:
             # Count total resumes
