@@ -46,9 +46,7 @@ CREATE TABLE IF NOT EXISTS job_searches (
     required_experience TEXT,
     
     -- Metadata
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    INDEX idx_job_searches_user_created (user_id, created_at DESC)
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Match Results Table
@@ -68,12 +66,7 @@ CREATE TABLE IF NOT EXISTS match_results (
     notes TEXT,
     
     -- Metadata
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    INDEX idx_match_results_user_created (user_id, created_at DESC),
-    INDEX idx_match_results_job (job_search_id),
-    INDEX idx_match_results_resume (resume_id),
-    INDEX idx_match_results_score (match_score DESC)
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Enable Row Level Security

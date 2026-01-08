@@ -8,14 +8,55 @@ interface MatchResult {
   filename: string
   score: number
   matched_skills: string[]
+  missing_skills: string[]
   extracted_data: any
+}
+
+interface Resume {
+  id: string
+  filename: string
+  name: string
+  email: string
+  phone: string
+  skills: string[]
+  created_at: string
+}
+
+interface JobSearch {
+  id: string
+  job_title: string
+  job_description: string
+  keywords: string[]
+  created_at: string
+}
+
+interface MatchHistory {
+  id: string
+  job_search_id: string
+  resume_id: string
+  match_score: number
+  matched_skills: string[]
+  missing_skills: string[]
+  created_at: string
+  job_search?: JobSearch
+  resume?: Resume
+}
+
+interface DashboardStats {
+  total_resumes: number
+  total_job_searches: number
+  total_matches: number
+  average_match_score: number
+  recent_activity: any[]
 }
 
 export default function Dashboard() {
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(false)
+  const [activeTab, setActiveTab] = useState('match')
   
+  // Match Tab State
   const [jobDescription, setJobDescription] = useState('')
   const [keywords, setKeywords] = useState('')
   const [useKeywords, setUseKeywords] = useState(false)
@@ -24,21 +65,50 @@ export default function Dashboard() {
   const [showResults, setShowResults] = useState(false)
   const resultsRef = useRef<HTMLDivElement>(null)
 
+  // Resume Library State
+  const [resumes, setResumes] = useState<Resume[]>([])
+  const [loadingResumes, setLoadingResumes] = useState(false)
+
+  // History State
+  const [jobSearches, setJobSearches] = useState<JobSearch[]>([])
+  const [matchHistory, setMatchHistory] = useState<MatchHistory[]>([])
+  const [loadingHistory, setLoadingHistory] = useState(false)
+
+  // Analytics State
+  const [stats, setStats] = useState<DashboardStats | null>(null)
+  const [loadingStats, setLoadingStats] = useState(false)
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser(session.user)
       }
-      // Allow guest access - no redirect if no session
-      // This enables "Skip Login" functionality for testing
     })
-  }, [router])
+  }, [])
+
+  useEffect(() => {
+    if (user) {
+      if (activeTab === 'resumes') {
+        loadResumes()
+      } else if (activeTab === 'history') {
+        loadHistory()
+      } else if (activeTab === 'analytics') {
+        loadStats()
+      }
+    }
+  }, [activeTab, user])
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
     router.push('/')
   }
 
+  const getAuthHeader = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    return session?.access_token ? `Bearer ${session.access_token}` : ''
+  }
+
+  // Match Functions
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setFiles(Array.from(e.target.files))
@@ -78,8 +148,16 @@ export default function Dashboard() {
       
       formData.append('job_input', JSON.stringify(jobData))
 
-      const response = await fetch(`${apiUrl}/api/match`, {
+      const authHeader = await getAuthHeader()
+      
+      // Use the new match-and-save endpoint if user is logged in
+      const endpoint = authHeader ? '/api/match-and-save' : '/api/match'
+      
+      const response = await fetch(`${apiUrl}${endpoint}`, {
         method: 'POST',
+        headers: authHeader ? {
+          'Authorization': authHeader
+        } : {},
         body: formData
       })
 
@@ -98,263 +176,514 @@ export default function Dashboard() {
       
       setShowResults(true)
       
-      // Auto-scroll to results after a short delay
       setTimeout(() => {
-        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }, 300)
+        resultsRef.current?.scrollIntoView({ behavior: 'smooth' })
+      }, 100)
     } catch (error) {
-      console.error('Error:', error)
-      alert('Failed to process resumes. Make sure the backend is running.')
+      console.error('Error matching resumes:', error)
+      alert('Failed to match resumes')
     } finally {
       setLoading(false)
     }
   }
 
-  // Remove loading screen - allow guest access immediately
-  // if (!user) { ... }
+  // Resume Library Functions
+  const loadResumes = async () => {
+    if (!user) return
+    
+    setLoadingResumes(true)
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+      const authHeader = await getAuthHeader()
+      
+      const response = await fetch(`${apiUrl}/api/resumes`, {
+        headers: {
+          'Authorization': authHeader
+        }
+      })
+      
+      const data = await response.json()
+      setResumes(data)
+    } catch (error) {
+      console.error('Error loading resumes:', error)
+    } finally {
+      setLoadingResumes(false)
+    }
+  }
+
+  const deleteResume = async (resumeId: string) => {
+    if (!confirm('Are you sure you want to delete this resume?')) return
+    
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+      const authHeader = await getAuthHeader()
+      
+      await fetch(`${apiUrl}/api/resumes/${resumeId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': authHeader
+        }
+      })
+      
+      loadResumes()
+    } catch (error) {
+      console.error('Error deleting resume:', error)
+      alert('Failed to delete resume')
+    }
+  }
+
+  // History Functions
+  const loadHistory = async () => {
+    if (!user) return
+    
+    setLoadingHistory(true)
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+      const authHeader = await getAuthHeader()
+      
+      const [jobsRes, matchesRes] = await Promise.all([
+        fetch(`${apiUrl}/api/job-searches`, {
+          headers: { 'Authorization': authHeader }
+        }),
+        fetch(`${apiUrl}/api/matches`, {
+          headers: { 'Authorization': authHeader }
+        })
+      ])
+      
+      const jobs = await jobsRes.json()
+      const matches = await matchesRes.json()
+      
+      setJobSearches(jobs)
+      setMatchHistory(matches)
+    } catch (error) {
+      console.error('Error loading history:', error)
+    } finally {
+      setLoadingHistory(false)
+    }
+  }
+
+  // Analytics Functions
+  const loadStats = async () => {
+    if (!user) return
+    
+    setLoadingStats(true)
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+      const authHeader = await getAuthHeader()
+      
+      const response = await fetch(`${apiUrl}/api/dashboard/stats`, {
+        headers: {
+          'Authorization': authHeader
+        }
+      })
+      
+      const data = await response.json()
+      setStats(data)
+    } catch (error) {
+      console.error('Error loading stats:', error)
+    } finally {
+      setLoadingStats(false)
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Animated Header */}
-        <div className="backdrop-blur-xl bg-white border border-gray-200 rounded-2xl p-4 md:p-8 shadow-lg animate-fadeIn">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div className="flex-1">
-              <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">
-                📄 Resume Parser Dashboard
-              </h1>
-              <p className="text-gray-600 text-sm md:text-lg">
-                Welcome back, <span className="text-blue-600 font-semibold">{user?.email || 'Guest User'}</span>
-              </p>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      {/* Header */}
+      <header className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-gray-900">Resume Parser Dashboard</h1>
+          <div className="flex items-center gap-4">
+            {user && (
+              <span className="text-sm text-gray-600">
+                {user.email}
+              </span>
+            )}
             <button
               onClick={handleSignOut}
-              className="w-full sm:w-auto px-6 py-2.5 md:px-8 md:py-3 bg-gradient-to-r from-gray-700 to-gray-900 text-white rounded-xl font-semibold hover:shadow-xl hover:scale-105 transition-all duration-300 text-sm md:text-base whitespace-nowrap"
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
             >
               Sign Out
             </button>
           </div>
         </div>
+      </header>
 
-        {/* Main Content Grid */}
-        <div className="grid lg:grid-cols-2 gap-6">
-          {/* Job Input Card */}
-          <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-              <span className="mr-3">💼</span> Job Requirements
-            </h2>
-            
-            <div className="mb-6">
-              <label className="flex items-center space-x-3 mb-4 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={useKeywords}
-                  onChange={(e) => setUseKeywords(e.target.checked)}
-                  className="w-5 h-5 rounded accent-blue-600"
-                />
-                <span className="text-gray-700 group-hover:text-blue-600 transition-colors">Use Keywords Instead</span>
-              </label>
-            </div>
-
-            {!useKeywords ? (
-              <div>
-                <label className="block text-gray-700 font-medium mb-3">
-                  📝 Job Description
-                </label>
-                <textarea
-                  value={jobDescription}
-                  onChange={(e) => setJobDescription(e.target.value)}
-                  placeholder="Paste the complete job description here..."
-                  className="w-full h-64 px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                />
-                <p className="text-xs text-gray-500 mt-2">
-                  🧠 NLP system will extract skills, roles, and requirements
-                </p>
-              </div>
-            ) : (
-              <div>
-                <label className="block text-gray-700 font-medium mb-3">
-                  🔑 Keywords (comma-separated)
-                </label>
-                <input
-                  type="text"
-                  value={keywords}
-                  onChange={(e) => setKeywords(e.target.value)}
-                  placeholder="python, react, machine learning, 5 years..."
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
+      {/* Tabs */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+        <div className="bg-white rounded-lg shadow-sm">
+          <div className="flex border-b">
+            <button
+              onClick={() => setActiveTab('match')}
+              className={`px-6 py-3 font-medium transition ${
+                activeTab === 'match'
+                  ? 'border-b-2 border-indigo-600 text-indigo-600'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Match Resumes
+            </button>
+            {user && (
+              <>
+                <button
+                  onClick={() => setActiveTab('resumes')}
+                  className={`px-6 py-3 font-medium transition ${
+                    activeTab === 'resumes'
+                      ? 'border-b-2 border-indigo-600 text-indigo-600'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Resume Library
+                </button>
+                <button
+                  onClick={() => setActiveTab('history')}
+                  className={`px-6 py-3 font-medium transition ${
+                    activeTab === 'history'
+                      ? 'border-b-2 border-indigo-600 text-indigo-600'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Match History
+                </button>
+                <button
+                  onClick={() => setActiveTab('analytics')}
+                  className={`px-6 py-3 font-medium transition ${
+                    activeTab === 'analytics'
+                      ? 'border-b-2 border-indigo-600 text-indigo-600'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Analytics
+                </button>
+              </>
             )}
           </div>
 
-          {/* Resume Upload Card */}
-          <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-              <span className="mr-3">📄</span> Upload Resumes
-            </h2>
-            
-            <div className="border-2 border-dashed border-blue-300 rounded-xl p-12 text-center hover:border-blue-500 hover:bg-blue-50 transition-all duration-300 cursor-pointer group">
-              <input
-                type="file"
-                multiple
-                accept=".pdf,.txt,.doc,.docx,.jpg,.jpeg,.png"
-                onChange={handleFileChange}
-                className="hidden"
-                id="file-upload"
-              />
-              <label
-                htmlFor="file-upload"
-                className="cursor-pointer block"
-              >
-                <div className="text-6xl mb-4 group-hover:scale-110 transition-transform duration-300">📎</div>
-                <p className="text-gray-700 mb-2 font-medium text-lg">
-                  Click to upload or drag and drop
-                </p>
-                <p className="text-sm text-gray-600">
-                  📁 PDF, TXT, DOC, DOCX, JPG, PNG
-                </p>
-                <p className="text-xs text-blue-600 mt-2">
-                  ✨ Multiple files supported
-                </p>
-              </label>
-            </div>
+          {/* Tab Content */}
+          <div className="p-6">
+            {/* Match Tab */}
+            {activeTab === 'match' && (
+              <div className="space-y-6">
+                <div>
+                  <label className="flex items-center gap-2 mb-4">
+                    <input
+                      type="checkbox"
+                      checked={useKeywords}
+                      onChange={(e) => setUseKeywords(e.target.checked)}
+                      className="w-4 h-4 text-indigo-600"
+                    />
+                    <span className="text-sm font-medium text-gray-700">
+                      Use keywords instead of job description
+                    </span>
+                  </label>
 
-            {files.length > 0 && (
-              <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
-                <p className="font-semibold text-gray-800 mb-3 flex items-center">
-                  <span className="mr-2">✅</span> {files.length} file(s) selected
-                </p>
-                <ul className="space-y-2">
-                  {files.map((file, idx) => (
-                    <li key={idx} className="text-sm text-gray-700 flex items-center">
-                      <span className="mr-2">📄</span> {file.name}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Match Button */}
-        <div className="text-center">
-          <button
-            onClick={handleMatch}
-            disabled={loading}
-            className="px-12 py-4 bg-blue-600 text-white text-lg font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
-          >
-            {loading ? (
-              <span className="flex items-center justify-center">
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Analyzing Resumes...
-              </span>
-            ) : (
-              <>🚀 Match Resumes</>
-            )}
-          </button>
-        </div>
-
-        {/* Results */}
-        {showResults && (
-          <div ref={resultsRef} className="bg-white border border-gray-200 rounded-2xl p-8 shadow-lg animate-fadeIn">
-            <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center">
-              <span className="mr-3">📊</span> Matching Results
-            </h2>
-            
-            {results.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="text-6xl mb-4">😕</div>
-                <p className="text-gray-600 text-lg">No matches found</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {results.map((result, idx) => (
-                  <div
-                    key={idx}
-                    className="bg-gray-50 border border-gray-200 rounded-xl p-6 hover:shadow-xl hover:scale-[1.01] transition-all duration-300"
-                  >
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <span className="text-2xl font-bold text-blue-600">#{idx + 1}</span>
-                          <h3 className="font-bold text-xl text-gray-800">{result.filename}</h3>
-                        </div>
-                        <p className="text-sm text-gray-600">
-                          📧 {result.extracted_data?.email || 'No email found'}
-                        </p>
-                        {result.extracted_data?.experience && (
-                          <p className="text-sm text-gray-600">
-                            ⏰ Experience: {result.extracted_data.experience}
-                          </p>
-                        )}
-                      </div>
-                      <div className="text-right">
-                        <div className={`text-4xl font-bold ${
-                          result.score >= 70 ? 'text-green-400' :
-                          result.score >= 40 ? 'text-yellow-400' :
-                          'text-red-400'
-                        }`}>
-                          {result.score}%
-                        </div>
-                        <div className="mt-2 px-3 py-1 rounded-full text-xs font-semibold inline-block" style={{
-                          background: result.score >= 70 ? 'rgba(34, 197, 94, 0.2)' :
-                                     result.score >= 40 ? 'rgba(234, 179, 8, 0.2)' :
-                                     'rgba(239, 68, 68, 0.2)',
-                          color: result.score >= 70 ? '#86efac' :
-                                result.score >= 40 ? '#fde047' :
-                                '#fca5a5'
-                        }}>
-                          {result.score >= 70 ? '✅ Strong Match' :
-                           result.score >= 40 ? '⚠️ Moderate Match' :
-                           '❌ Weak Match'}
-                        </div>
-                      </div>
+                  {useKeywords ? (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Keywords (comma-separated)
+                      </label>
+                      <input
+                        type="text"
+                        value={keywords}
+                        onChange={(e) => setKeywords(e.target.value)}
+                        placeholder="e.g., Python, Machine Learning, API"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      />
                     </div>
-
-                    {/* Progress Bar */}
-                    <div className="w-full bg-gray-700/50 rounded-full h-3 mb-4 overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all duration-1000 ${
-                          result.score >= 70 ? 'bg-gradient-to-r from-green-500 to-emerald-400' :
-                          result.score >= 40 ? 'bg-gradient-to-r from-yellow-500 to-orange-400' :
-                          'bg-gradient-to-r from-red-500 to-pink-400'
-                        }`}
-                        style={{ width: `${result.score}%` }}
-                      ></div>
+                  ) : (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Job Description
+                      </label>
+                      <textarea
+                        value={jobDescription}
+                        onChange={(e) => setJobDescription(e.target.value)}
+                        rows={6}
+                        placeholder="Paste job description here..."
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      />
                     </div>
+                  )}
+                </div>
 
-                    {/* Matched Skills */}
-                    {result.matched_skills && result.matched_skills.length > 0 && (
-                      <div className="mt-4">
-                        <p className="text-sm font-semibold text-gray-700 mb-2">
-                          ✅ Matched Skills ({result.matched_skills.length})
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          {result.matched_skills.slice(0, 10).map((skill, skillIdx) => (
-                            <span
-                              key={skillIdx}
-                              className="px-3 py-1 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-sm font-medium rounded-full shadow-md hover:scale-105 transition-transform duration-200"
-                            >
-                              {skill}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Upload Resumes
+                  </label>
+                  <input
+                    type="file"
+                    multiple
+                    accept=".pdf,.doc,.docx"
+                    onChange={handleFileChange}
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                  />
+                  {files.length > 0 && (
+                    <p className="mt-2 text-sm text-gray-600">
+                      {files.length} file(s) selected
+                    </p>
+                  )}
+                </div>
+
+                <button
+                  onClick={handleMatch}
+                  disabled={loading}
+                  className="w-full px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 transition"
+                >
+                  {loading ? 'Matching...' : 'Match Resumes'}
+                </button>
+
+                {showResults && results.length > 0 && (
+                  <div ref={resultsRef} className="mt-8">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">Match Results</h2>
+                    <div className="space-y-4">
+                      {results.map((result, index) => (
+                        <div key={index} className="bg-white border border-gray-200 rounded-lg p-6">
+                          <div className="flex justify-between items-start mb-4">
+                            <h3 className="text-lg font-semibold text-gray-900">{result.filename}</h3>
+                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                              result.score >= 70 ? 'bg-green-100 text-green-800' :
+                              result.score >= 50 ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {result.score}% Match
                             </span>
-                          ))}
-                          {result.matched_skills.length > 10 && (
-                            <span className="px-3 py-1 bg-gray-300 text-gray-700 text-sm font-medium rounded-full">
-                              +{result.matched_skills.length - 10} more
-                            </span>
-                          )}
+                          </div>
+                          
+                          <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                              <h4 className="font-medium text-gray-700 mb-2">Matched Skills</h4>
+                              <div className="flex flex-wrap gap-2">
+                                {result.matched_skills?.map((skill, idx) => (
+                                  <span key={idx} className="px-2 py-1 bg-green-50 text-green-700 text-sm rounded">
+                                    {skill}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            {result.missing_skills && result.missing_skills.length > 0 && (
+                              <div>
+                                <h4 className="font-medium text-gray-700 mb-2">Missing Skills</h4>
+                                <div className="flex flex-wrap gap-2">
+                                  {result.missing_skills.map((skill, idx) => (
+                                    <span key={idx} className="px-2 py-1 bg-red-50 text-red-700 text-sm rounded">
+                                      {skill}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      ))}
+                    </div>
                   </div>
-                ))}
+                )}
+              </div>
+            )}
+
+            {/* Resume Library Tab */}
+            {activeTab === 'resumes' && (
+              <div>
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900">Resume Library</h2>
+                  <button
+                    onClick={loadResumes}
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+                  >
+                    Refresh
+                  </button>
+                </div>
+
+                {loadingResumes ? (
+                  <div className="text-center py-12">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                    <p className="mt-2 text-gray-600">Loading resumes...</p>
+                  </div>
+                ) : resumes.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-gray-600">No resumes saved yet. Upload resumes in the Match tab to save them.</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-4">
+                    {resumes.map((resume) => (
+                      <div key={resume.id} className="bg-white border border-gray-200 rounded-lg p-6">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <h3 className="text-lg font-semibold text-gray-900">{resume.filename}</h3>
+                            {resume.name && <p className="text-gray-700 mt-1">Name: {resume.name}</p>}
+                            {resume.email && <p className="text-gray-600 text-sm">Email: {resume.email}</p>}
+                            {resume.phone && <p className="text-gray-600 text-sm">Phone: {resume.phone}</p>}
+                            
+                            {resume.skills && resume.skills.length > 0 && (
+                              <div className="mt-3">
+                                <p className="text-sm font-medium text-gray-700 mb-2">Skills:</p>
+                                <div className="flex flex-wrap gap-2">
+                                  {resume.skills.map((skill, idx) => (
+                                    <span key={idx} className="px-2 py-1 bg-indigo-50 text-indigo-700 text-sm rounded">
+                                      {skill}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            
+                            <p className="text-xs text-gray-500 mt-3">
+                              Uploaded: {new Date(resume.created_at).toLocaleDateString()}
+                            </p>
+                          </div>
+                          
+                          <button
+                            onClick={() => deleteResume(resume.id)}
+                            className="ml-4 px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* History Tab */}
+            {activeTab === 'history' && (
+              <div>
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900">Match History</h2>
+                  <button
+                    onClick={loadHistory}
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+                  >
+                    Refresh
+                  </button>
+                </div>
+
+                {loadingHistory ? (
+                  <div className="text-center py-12">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                    <p className="mt-2 text-gray-600">Loading history...</p>
+                  </div>
+                ) : matchHistory.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-gray-600">No match history yet. Start matching resumes to see history.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {jobSearches.map((job) => {
+                      const jobMatches = matchHistory.filter(m => m.job_search_id === job.id)
+                      if (jobMatches.length === 0) return null
+                      
+                      return (
+                        <div key={job.id} className="bg-white border border-gray-200 rounded-lg p-6">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                            {job.job_title || 'Job Search'}
+                          </h3>
+                          <p className="text-sm text-gray-600 mb-4">
+                            {new Date(job.created_at).toLocaleString()}
+                          </p>
+                          
+                          <div className="space-y-3">
+                            {jobMatches.map((match) => (
+                              <div key={match.id} className="bg-gray-50 rounded-lg p-4">
+                                <div className="flex justify-between items-center">
+                                  <span className="font-medium text-gray-900">Resume Match</span>
+                                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                    match.match_score >= 70 ? 'bg-green-100 text-green-800' :
+                                    match.match_score >= 50 ? 'bg-yellow-100 text-yellow-800' :
+                                    'bg-red-100 text-red-800'
+                                  }`}>
+                                    {match.match_score}% Match
+                                  </span>
+                                </div>
+                                
+                                <div className="mt-3 grid md:grid-cols-2 gap-4">
+                                  <div>
+                                    <p className="text-sm font-medium text-gray-700 mb-1">Matched Skills:</p>
+                                    <div className="flex flex-wrap gap-1">
+                                      {match.matched_skills?.map((skill, idx) => (
+                                        <span key={idx} className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded">
+                                          {skill}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                  
+                                  {match.missing_skills && match.missing_skills.length > 0 && (
+                                    <div>
+                                      <p className="text-sm font-medium text-gray-700 mb-1">Missing Skills:</p>
+                                      <div className="flex flex-wrap gap-1">
+                                        {match.missing_skills.map((skill, idx) => (
+                                          <span key={idx} className="px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded">
+                                            {skill}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Analytics Tab */}
+            {activeTab === 'analytics' && (
+              <div>
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900">Analytics</h2>
+                  <button
+                    onClick={loadStats}
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+                  >
+                    Refresh
+                  </button>
+                </div>
+
+                {loadingStats ? (
+                  <div className="text-center py-12">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                    <p className="mt-2 text-gray-600">Loading statistics...</p>
+                  </div>
+                ) : stats ? (
+                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="bg-white border border-gray-200 rounded-lg p-6">
+                      <h3 className="text-sm font-medium text-gray-600 mb-2">Total Resumes</h3>
+                      <p className="text-3xl font-bold text-indigo-600">{stats.total_resumes}</p>
+                    </div>
+                    
+                    <div className="bg-white border border-gray-200 rounded-lg p-6">
+                      <h3 className="text-sm font-medium text-gray-600 mb-2">Job Searches</h3>
+                      <p className="text-3xl font-bold text-indigo-600">{stats.total_job_searches}</p>
+                    </div>
+                    
+                    <div className="bg-white border border-gray-200 rounded-lg p-6">
+                      <h3 className="text-sm font-medium text-gray-600 mb-2">Total Matches</h3>
+                      <p className="text-3xl font-bold text-indigo-600">{stats.total_matches}</p>
+                    </div>
+                    
+                    <div className="bg-white border border-gray-200 rounded-lg p-6">
+                      <h3 className="text-sm font-medium text-gray-600 mb-2">Avg Match Score</h3>
+                      <p className="text-3xl font-bold text-indigo-600">
+                        {stats.average_match_score ? `${stats.average_match_score.toFixed(1)}%` : 'N/A'}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <p className="text-gray-600">No analytics data available yet.</p>
+                  </div>
+                )}
               </div>
             )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   )
