@@ -570,8 +570,8 @@ export default function Dashboard() {
                   </div>
                 ) : (
                   <div className="space-y-6">
-                    {jobSearches.map((job) => {
-                      const jobMatches = matchHistory.filter(m => m.job_search_id === job.id)
+                    {jobSearches?.map((job) => {
+                      const jobMatches = matchHistory?.filter(m => m.job_search_id === job.id) || []
                       if (jobMatches.length === 0) return null
                       
                       return (
