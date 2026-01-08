@@ -432,47 +432,61 @@ export default function Dashboard() {
                 </button>
 
                 {showResults && results.length > 0 && (
-                  <div ref={resultsRef} className="mt-8">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">Match Results</h2>
+                  <div ref={resultsRef} className="mt-8 bg-white rounded-lg shadow-md p-6">
+                    <h2 className="text-2xl font-semibold mb-6">Matching Results</h2>
+                    
                     <div className="space-y-4">
-                      {results.map((result, index) => (
-                        <div key={index} className="bg-white border border-gray-200 rounded-lg p-6">
-                          <div className="flex justify-between items-start mb-4">
-                            <h3 className="text-lg font-semibold text-gray-900">{result.filename}</h3>
-                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                              result.score >= 70 ? 'bg-green-100 text-green-800' :
-                              result.score >= 50 ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-red-100 text-red-800'
-                            }`}>
-                              {result.score}% Match
-                            </span>
-                          </div>
-                          
-                          <div className="grid md:grid-cols-2 gap-4">
+                      {results.map((result, idx) => (
+                        <div
+                          key={idx}
+                          className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                        >
+                          <div className="flex justify-between items-start mb-3">
                             <div>
-                              <h4 className="font-medium text-gray-700 mb-2">Matched Skills</h4>
+                              <h3 className="font-semibold text-lg">{result.filename}</h3>
+                              <p className="text-sm text-gray-600">
+                                Rank: #{idx + 1}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <div className={`text-2xl font-bold ${
+                                result.score >= 70 ? 'text-green-600' :
+                                result.score >= 40 ? 'text-yellow-600' :
+                                'text-red-600'
+                              }`}>
+                                {result.score}%
+                              </div>
+                              <p className="text-xs text-gray-500">Match Score</p>
+                            </div>
+                          </div>
+
+                          {result.matched_skills && result.matched_skills.length > 0 && (
+                            <div className="mb-2">
+                              <p className="text-sm font-medium mb-1">Matched Skills:</p>
                               <div className="flex flex-wrap gap-2">
-                                {result.matched_skills?.map((skill, idx) => (
-                                  <span key={idx} className="px-2 py-1 bg-green-50 text-green-700 text-sm rounded">
+                                {result.matched_skills.map((skill, i) => (
+                                  <span
+                                    key={i}
+                                    className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded"
+                                  >
                                     {skill}
                                   </span>
                                 ))}
                               </div>
                             </div>
-                            
-                            {result.missing_skills && result.missing_skills.length > 0 && (
-                              <div>
-                                <h4 className="font-medium text-gray-700 mb-2">Missing Skills</h4>
-                                <div className="flex flex-wrap gap-2">
-                                  {result.missing_skills.map((skill, idx) => (
-                                    <span key={idx} className="px-2 py-1 bg-red-50 text-red-700 text-sm rounded">
-                                      {skill}
-                                    </span>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                          </div>
+                          )}
+
+                          {result.extracted_data?.email && (
+                            <p className="text-sm text-gray-600 mt-2">
+                              📧 {result.extracted_data.email}
+                            </p>
+                          )}
+
+                          {result.extracted_data?.phone && (
+                            <p className="text-sm text-gray-600">
+                              📞 {result.extracted_data.phone}
+                            </p>
+                          )}
                         </div>
                       ))}
                     </div>

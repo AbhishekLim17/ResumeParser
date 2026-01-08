@@ -22,8 +22,16 @@ from database import DatabaseService
 # Load environment variables
 load_dotenv()
 
-# Initialize database service
-db_service = DatabaseService()
+# Initialize database service (optional for basic matching)
+try:
+    db_service = DatabaseService()
+    DB_ENABLED = True
+    print("✅ Database service initialized")
+except Exception as e:
+    print(f"⚠️  Database disabled: {e}")
+    print("📝 Basic matching will work, but history/library features disabled")
+    db_service = None
+    DB_ENABLED = False
 
 # Initialize FastAPI app
 app = FastAPI(title="Resume Parser API", version="1.0.0")
@@ -242,6 +250,8 @@ async def match_resumes(
 
 def get_user_id(authorization: str = Header(None)) -> str:
     """Extract user ID from authorization header"""
+    if not DB_ENABLED:
+        raise HTTPException(503, "Database features are disabled. Please configure SUPABASE credentials.")
     if not authorization:
         raise HTTPException(401, "Authorization header required")
     # Extract user_id from bearer token or use it directly
@@ -398,7 +408,7 @@ async def get_resumes(
     try:
         user_id = get_user_id(authorization)
         resumes = db_service.get_user_resumes(user_id, limit, offset)
-        return {"resumes": resumes}
+        return resumes  # Return array directly, not wrapped in object
     except Exception as e:
         raise HTTPException(500, f"Failed to fetch resumes: {str(e)}")
 
@@ -443,7 +453,7 @@ async def get_job_searches(
     try:
         user_id = get_user_id(authorization)
         searches = db_service.get_user_job_searches(user_id, limit, offset)
-        return {"job_searches": searches}
+        return searches  # Return array directly, not wrapped in object
     except Exception as e:
         raise HTTPException(500, f"Failed to fetch job searches: {str(e)}")
 
@@ -458,7 +468,7 @@ async def get_matches(
     try:
         user_id = get_user_id(authorization)
         matches = db_service.get_user_matches(user_id, limit, offset)
-        return {"matches": matches}
+        return matches  # Return array directly, not wrapped in object
     except Exception as e:
         raise HTTPException(500, f"Failed to fetch matches: {str(e)}")
 

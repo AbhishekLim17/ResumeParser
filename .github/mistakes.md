@@ -127,6 +127,57 @@ First NLP-based product development - Resume Parser application
 
 ---
 
+## 2026-01-08 - API Data Format Mismatch & TXT File Reading Issues
+
+**Problem:**
+- Frontend throwing `TypeError: N.map is not a function`
+- Resume Library and Match History tabs showing errors
+- TXT files not being read properly
+- Application loading slowly
+- Match Results tab had complex UI (user wanted old simple design)
+
+**Root Cause:**
+1. Backend APIs returning wrapped objects: `{ resumes: [...] }`, `{ job_searches: [...] }`, `{ matches: [...] }`
+2. Frontend expecting direct arrays: `[...]`
+3. TXT file extraction only trying UTF-8 encoding
+4. Match Results UI was too complex
+5. Database service required credentials, blocking basic functionality
+
+**Solution:**
+1. Modified backend API endpoints to return arrays directly:
+   - `/api/resumes` - returns array instead of `{ resumes: [] }`
+   - `/api/job-searches` - returns array instead of `{ job_searches: [] }`
+   - `/api/matches` - returns array instead of `{ matches: [] }`
+   
+2. Enhanced TXT file reading with multiple encoding fallbacks:
+   - UTF-8, UTF-16, Latin-1, CP1252, ISO-8859-1
+   - Final fallback with errors='ignore'
+   
+3. Restored old, simpler Match Results UI design:
+   - Removed two-column grid layout
+   - Simplified to single-column cards
+   - Added rank display
+   - Made email/phone display conditional
+   
+4. Made database service optional:
+   - Basic matching works without database
+   - Database-dependent features return 503 error with clear message
+   - Allows testing and development without Supabase credentials
+
+**Lesson:**
+- **Always check API response format** - Frontend and backend must agree on data structure
+- **Test with real data** - Different encodings exist, handle them gracefully
+- **Keep UIs simple** - Complex isn't always better, listen to user feedback
+- **Make dependencies optional** - Core features should work without external services
+- **Provide clear error messages** - Tell users why something isn't working
+
+**Related Files:**
+- backend/main.py (API endpoints, database init)
+- backend/resume_parser.py (TXT extraction with encoding fallbacks)
+- frontend/app/dashboard/page.tsx (Match Results UI)
+
+---
+
 **Related Files:**
 - All project files
 - .github/temp-todo.md (tracking)

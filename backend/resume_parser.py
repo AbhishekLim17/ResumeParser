@@ -45,13 +45,33 @@ class ResumeParser:
         return text
     
     def extract_text_from_txt(self, file_path: str) -> str:
-        """Extract text from TXT file"""
+        """Extract text from TXT file with multiple encoding fallbacks"""
+        encodings = ['utf-8', 'utf-16', 'latin-1', 'cp1252', 'iso-8859-1']
+        
+        for encoding in encodings:
+            try:
+                with open(file_path, 'r', encoding=encoding) as file:
+                    content = file.read()
+                    if content.strip():  # Check if content is not empty
+                        print(f"Successfully read TXT file with {encoding} encoding")
+                        return content
+            except (UnicodeDecodeError, UnicodeError):
+                continue  # Try next encoding
+            except Exception as e:
+                print(f"TXT extraction error with {encoding}: {e}")
+                continue
+        
+        # If all encodings fail, try reading as binary and decode with errors='ignore'
         try:
-            with open(file_path, 'r', encoding='utf-8') as file:
-                return file.read()
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
+                content = file.read()
+                if content.strip():
+                    print("Read TXT file with UTF-8 (ignoring errors)")
+                    return content
         except Exception as e:
-            print(f"TXT extraction error: {e}")
-            return ""
+            print(f"Final TXT extraction attempt failed: {e}")
+        
+        return ""  # Return empty string if all attempts fail
     
     def extract_text_from_docx(self, file_path: str) -> str:
         """Extract text from DOCX file including tables"""
