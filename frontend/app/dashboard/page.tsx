@@ -535,12 +535,6 @@ export default function Dashboard() {
             {/* Resume Library Tab */}
             {activeTab === 'resumes' && (
               <div>
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-                  <p className="text-sm text-yellow-800">
-                    <strong>ℹ️ Database Required:</strong> Resume Library stores uploaded resumes in the database. Currently experiencing database connectivity issues. Please use the Match Resumes tab for immediate matching without database dependency.
-                  </p>
-                </div>
-                
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-bold text-gray-900">Resume Library</h2>
                   <button
@@ -606,12 +600,6 @@ export default function Dashboard() {
             {/* History Tab */}
             {activeTab === 'history' && (
               <div>
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-                  <p className="text-sm text-yellow-800">
-                    <strong>ℹ️ Database Required:</strong> Match History saves your past searches. Currently experiencing database connectivity issues. Please use the Match Resumes tab for immediate matching.
-                  </p>
-                </div>
-                
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-bold text-gray-900">Match History</h2>
                   <button
@@ -699,12 +687,6 @@ export default function Dashboard() {
             {/* Analytics Tab */}
             {activeTab === 'analytics' && (
               <div>
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-                  <p className="text-sm text-yellow-800">
-                    <strong>ℹ️ Database Required:</strong> Analytics tracks your usage statistics. Currently experiencing database connectivity issues. Core matching functionality is still available in the Match tab.
-                  </p>
-                </div>
-                
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-bold text-gray-900">Analytics</h2>
                   <button

@@ -71,7 +71,10 @@ async def root():
     return {
         "status": "active",
         "message": "Resume Parser API is running",
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "database": "enabled" if DB_ENABLED else "disabled",
+        "supabase_url_set": bool(os.getenv("SUPABASE_URL")),
+        "supabase_key_set": bool(os.getenv("SUPABASE_SERVICE_KEY"))
     }
 
 
