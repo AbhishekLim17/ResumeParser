@@ -252,16 +252,44 @@ async def match_resumes(
 # ==================== DATABASE-INTEGRATED ENDPOINTS ====================
 
 def get_user_id(authorization: str = Header(None)) -> str:
-    """Extract user ID from authorization header"""
+    """Extract user ID from JWT token in authorization header"""
     if not DB_ENABLED:
         raise HTTPException(503, "Database features are disabled. Please configure SUPABASE credentials.")
     if not authorization:
         raise HTTPException(401, "Authorization header required")
-    # Extract user_id from bearer token or use it directly
-    user_id = authorization.replace("Bearer ", "").strip()
-    if not user_id:
+    
+    # Extract JWT token from Bearer header
+    token = authorization.replace("Bearer ", "").strip()
+    if not token:
         raise HTTPException(401, "Invalid authorization token")
-    return user_id
+    
+    try:
+        import base64
+        # JWT tokens have 3 parts: header.payload.signature
+        # We need the payload (middle part)
+        parts = token.split('.')
+        if len(parts) != 3:
+            raise HTTPException(401, "Invalid JWT token format")
+        
+        # Decode the payload (add padding if needed)
+        payload_encoded = parts[1]
+        # Add padding for base64 decoding
+        padding = 4 - len(payload_encoded) % 4
+        if padding != 4:
+            payload_encoded += '=' * padding
+        
+        payload_json = base64.urlsafe_b64decode(payload_encoded)
+        payload = json.loads(payload_json)
+        
+        # Extract user_id from 'sub' field
+        user_id = payload.get('sub')
+        if not user_id:
+            raise HTTPException(401, "No user ID found in token")
+        
+        return user_id
+    except Exception as e:
+        print(f"Error decoding JWT: {e}")
+        raise HTTPException(401, f"Invalid token: {str(e)}")
 
 
 @app.post("/api/match-and-save", response_model=List[MatchResponse])
