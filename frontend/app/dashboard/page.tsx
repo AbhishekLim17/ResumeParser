@@ -153,13 +153,20 @@ export default function Dashboard() {
       // Use the new match-and-save endpoint if user is logged in
       const endpoint = authHeader ? '/api/match-and-save' : '/api/match'
       
+      // Create timeout controller (90 seconds for Render free tier cold start)
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 90000)
+      
       const response = await fetch(`${apiUrl}${endpoint}`, {
         method: 'POST',
         headers: authHeader ? {
           'Authorization': authHeader
         } : {},
-        body: formData
+        body: formData,
+        signal: controller.signal
       })
+      
+      clearTimeout(timeoutId)
 
       const result = await response.json()
       
@@ -179,9 +186,16 @@ export default function Dashboard() {
       setTimeout(() => {
         resultsRef.current?.scrollIntoView({ behavior: 'smooth' })
       }, 100)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error matching resumes:', error)
-      alert('Failed to match resumes')
+      
+      if (error.name === 'AbortError') {
+        alert('Request timed out. The backend might be waking up (Render free tier). Please try again in 30 seconds.')
+      } else if (error.message?.includes('Failed to fetch')) {
+        alert('Cannot connect to backend. Please check your internet connection or try again in a moment.')
+      } else {
+        alert('Failed to match resumes. Error: ' + (error.message || 'Unknown error'))
+      }
     } finally {
       setLoading(false)
     }
@@ -430,6 +444,13 @@ export default function Dashboard() {
                 >
                   {loading ? 'Matching...' : 'Match Resumes'}
                 </button>
+                
+                {loading && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800">
+                    <p className="font-medium">⏳ Processing your request...</p>
+                    <p className="text-xs mt-1">If this is taking longer than usual, the backend might be waking up from sleep (free tier limitation). This can take up to 60 seconds on first load.</p>
+                  </div>
+                )}
 
                 {showResults && results.length > 0 && (
                   <div ref={resultsRef} className="mt-8 bg-white rounded-lg shadow-md p-6">

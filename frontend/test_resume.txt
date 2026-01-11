@@ -1,0 +1,7 @@
+﻿John Doe
+Software Developer
+Email: test@example.com
+Phone: (555) 123-4567
+
+SKILLS:
+Python, React, FastAPI, PostgreSQL
