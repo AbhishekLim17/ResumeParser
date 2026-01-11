@@ -270,9 +270,15 @@ async def match_and_save_resumes(
     """
     Match resumes and save everything to database
     Saves: resumes, job search, and match results
+    Falls back to simple matching if database unavailable
     """
     try:
         user_id = get_user_id(authorization)
+        
+        # Check if database is available
+        if not DB_ENABLED or not db_service:
+            # Fallback to simple matching without saving
+            return await match_resumes(job_input, files)
         
         # Parse job_input JSON
         job_data = json.loads(job_input)
@@ -395,7 +401,12 @@ async def match_and_save_resumes(
         return candidates
     
     except Exception as e:
-        raise HTTPException(500, f"Matching failed: {str(e)}")
+        # If database save fails, fallback to simple matching without saving
+        print(f"⚠️  Database save failed, falling back to simple matching: {e}")
+        try:
+            return await match_resumes(job_input, files)
+        except Exception as fallback_error:
+            raise HTTPException(500, f"Matching failed: {str(fallback_error)}")
 
 
 @app.get("/api/resumes")
