@@ -54,6 +54,7 @@ export default function Dashboard() {
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(false)
+  const [slowLoading, setSlowLoading] = useState(false)
   const [activeTab, setActiveTab] = useState('match')
   
   // Match Tab State
@@ -132,7 +133,13 @@ export default function Dashboard() {
     }
 
     setLoading(true)
+    setSlowLoading(false)
     setShowResults(false)
+    
+    // Show "slow loading" message only if request takes > 5 seconds
+    const slowLoadingTimeout = setTimeout(() => {
+      setSlowLoading(true)
+    }, 5000)
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
@@ -197,7 +204,9 @@ export default function Dashboard() {
         alert('Failed to match resumes. Error: ' + (error.message || 'Unknown error'))
       }
     } finally {
+      clearTimeout(slowLoadingTimeout)
       setLoading(false)
+      setSlowLoading(false)
     }
   }
 
@@ -445,10 +454,10 @@ export default function Dashboard() {
                   {loading ? 'Matching...' : 'Match Resumes'}
                 </button>
                 
-                {loading && (
+                {slowLoading && (
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800">
-                    <p className="font-medium">⏳ Processing your request...</p>
-                    <p className="text-xs mt-1">If this is taking longer than usual, the backend might be waking up from sleep (free tier limitation). This can take up to 60 seconds on first load.</p>
+                    <p className="font-medium">⏳ This is taking longer than usual...</p>
+                    <p className="text-xs mt-1">The backend might be waking up from sleep (free tier limitation). This can take up to 60 seconds on first load.</p>
                   </div>
                 )}
 
