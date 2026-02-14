@@ -1,4 +1,0 @@
-﻿John Doe
-Email: john@test.com
-Phone: 123-456-7890
-Skills: Python, FastAPI, Machine Learning
