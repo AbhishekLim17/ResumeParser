@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Resume Parser - NLP Based Screening',
-  description: 'AI-powered resume screening for HR managers',
+  description: 'NLP-based resume screening for HR managers',
   icons: {
     icon: '/favicon.svg',
   },

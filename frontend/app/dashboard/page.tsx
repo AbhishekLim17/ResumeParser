@@ -53,6 +53,7 @@ interface DashboardStats {
 export default function Dashboard() {
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
+  const [initialLoading, setInitialLoading] = useState(true)
   const [loading, setLoading] = useState(false)
   const [slowLoading, setSlowLoading] = useState(false)
   const [activeTab, setActiveTab] = useState('match')
@@ -83,9 +84,12 @@ export default function Dashboard() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser(session.user)
+      } else {
+        router.push('/')
       }
+      setInitialLoading(false)
     })
-  }, [])
+  }, [router])
 
   useEffect(() => {
     if (user) {
@@ -316,72 +320,91 @@ export default function Dashboard() {
     }
   }
 
+  if (initialLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mb-4"></div>
+          <h2 className="text-2xl font-bold text-blue-600 mb-2">Loading Dashboard...</h2>
+          <p className="text-gray-500">Please wait while we set up your session</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-900">Resume Parser Dashboard</h1>
+      <header className="bg-white backdrop-blur-xl shadow-lg border-b border-gray-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <span className="text-3xl animate-float">📄</span>
+            <h1 className="text-2xl font-bold text-blue-600">Resume Parser Dashboard</h1>
+          </div>
           <div className="flex items-center gap-4">
             {user && (
-              <span className="text-sm text-gray-600">
-                {user.email}
+              <span className="text-sm font-medium text-gray-700 px-4 py-2 bg-blue-50 rounded-full border border-blue-200">
+                👤 {user.email}
               </span>
             )}
             <button
               onClick={handleSignOut}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+              className="px-5 py-2.5 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 hover:shadow-lg transition-all duration-300"
             >
-              Sign Out
+              🚪 Sign Out
             </button>
           </div>
         </div>
       </header>
 
       {/* Tabs */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-        <div className="bg-white rounded-lg shadow-sm">
-          <div className="flex border-b">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+        <div className="bg-white backdrop-blur-xl rounded-2xl shadow-xl border border-gray-200">
+          <div className="flex border-b border-gray-200">
             <button
               onClick={() => setActiveTab('match')}
-              className={`px-6 py-3 font-medium transition ${
+              className={`px-8 py-4 font-semibold transition-all duration-300 flex items-center gap-2 ${
                 activeTab === 'match'
-                  ? 'border-b-2 border-indigo-600 text-indigo-600'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'border-b-4 border-blue-600 text-blue-600 bg-blue-50'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
+              <span className="text-xl">🎯</span>
               Match Resumes
             </button>
             {user && (
               <>
                 <button
                   onClick={() => setActiveTab('resumes')}
-                  className={`px-6 py-3 font-medium transition ${
+                  className={`px-8 py-4 font-semibold transition-all duration-300 flex items-center gap-2 ${
                     activeTab === 'resumes'
-                      ? 'border-b-2 border-indigo-600 text-indigo-600'
-                      : 'text-gray-600 hover:text-gray-900'
+                      ? 'border-b-4 border-blue-600 text-blue-600 bg-blue-50'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
+                  <span className="text-xl">📚</span>
                   Resume Library
                 </button>
                 <button
                   onClick={() => setActiveTab('history')}
-                  className={`px-6 py-3 font-medium transition ${
+                  className={`px-8 py-4 font-semibold transition-all duration-300 flex items-center gap-2 ${
                     activeTab === 'history'
-                      ? 'border-b-2 border-indigo-600 text-indigo-600'
-                      : 'text-gray-600 hover:text-gray-900'
+                      ? 'border-b-4 border-blue-600 text-blue-600 bg-blue-50'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
+                  <span className="text-xl">📜</span>
                   Match History
                 </button>
                 <button
                   onClick={() => setActiveTab('analytics')}
-                  className={`px-6 py-3 font-medium transition ${
+                  className={`px-8 py-4 font-semibold transition-all duration-300 flex items-center gap-2 ${
                     activeTab === 'analytics'
-                      ? 'border-b-2 border-indigo-600 text-indigo-600'
-                      : 'text-gray-600 hover:text-gray-900'
+                      ? 'border-b-4 border-blue-600 text-blue-600 bg-blue-50'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
+                  <span className="text-xl">📊</span>
                   Analytics
                 </button>
               </>
@@ -389,122 +412,164 @@ export default function Dashboard() {
           </div>
 
           {/* Tab Content */}
-          <div className="p-6">
+          <div className="p-8">
             {/* Match Tab */}
             {activeTab === 'match' && (
-              <div className="space-y-6">
-                <div>
-                  <label className="flex items-center gap-2 mb-4">
-                    <input
-                      type="checkbox"
-                      checked={useKeywords}
-                      onChange={(e) => setUseKeywords(e.target.checked)}
-                      className="w-4 h-4 text-indigo-600"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      Use keywords instead of job description
-                    </span>
-                  </label>
+              <div className="space-y-8 animate-fadeIn">
+                <div className="bg-blue-50 p-6 rounded-2xl border border-blue-200">
+                  <div className="flex gap-2 bg-gray-100 p-1 rounded-xl mb-4">
+                    <button
+                      onClick={() => setUseKeywords(false)}
+                      className={`flex-1 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 ${
+                        !useKeywords
+                          ? 'bg-blue-600 text-white shadow-md'
+                          : 'text-gray-600 hover:text-gray-800'
+                      }`}
+                    >
+                      Job Description
+                    </button>
+                    <button
+                      onClick={() => setUseKeywords(true)}
+                      className={`flex-1 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 ${
+                        useKeywords
+                          ? 'bg-blue-600 text-white shadow-md'
+                          : 'text-gray-600 hover:text-gray-800'
+                      }`}
+                    >
+                      Keywords
+                    </button>
+                  </div>
 
                   {useKeywords ? (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <div className="mt-4">
+                      <label className="block text-sm font-bold text-gray-800 mb-3">
                         Keywords (comma-separated)
                       </label>
                       <input
                         type="text"
                         value={keywords}
                         onChange={(e) => setKeywords(e.target.value)}
-                        placeholder="e.g., Python, Machine Learning, API"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        placeholder="e.g., Python, Machine Learning, API, React"
+                        className="w-full px-5 py-3 border-2 border-blue-200 rounded-xl focus:ring-4 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition-all duration-300 text-gray-700 font-medium"
                       />
                     </div>
                   ) : (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Job Description
+                    <div className="mt-4">
+                      <label className="block text-sm font-bold text-gray-800 mb-3">
+                        📄 Job Description
                       </label>
                       <textarea
                         value={jobDescription}
                         onChange={(e) => setJobDescription(e.target.value)}
                         rows={6}
-                        placeholder="Paste job description here..."
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        placeholder="Paste job description here... We will extract relevant skills and requirements automatically."
+                        className="w-full px-5 py-4 border-2 border-blue-200 rounded-xl focus:ring-4 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition-all duration-300 text-gray-700 font-medium resize-none"
                       />
                     </div>
                   )}
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Upload Resumes
+                <div className="bg-blue-50 p-6 rounded-2xl border border-blue-200">
+                  <label className="block text-sm font-bold text-gray-800 mb-3">
+                    📎 Upload Resumes (PDF, DOC, DOCX)
                   </label>
                   <input
                     type="file"
                     multiple
                     accept=".pdf,.doc,.docx"
                     onChange={handleFileChange}
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                    className="block w-full text-sm text-gray-600 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-blue-600 file:text-white hover:file:scale-105 file:transition-all file:duration-300 file:cursor-pointer file:shadow-lg cursor-pointer"
                   />
                   {files.length > 0 && (
-                    <p className="mt-2 text-sm text-gray-600">
-                      {files.length} file(s) selected
-                    </p>
+                    <div className="mt-4 flex items-center gap-2 bg-white p-3 rounded-xl shadow-md animate-slideUp">
+                      <span className="text-2xl">✅</span>
+                      <p className="text-sm font-bold text-gray-700">
+                        {files.length} file(s) selected and ready to analyze!
+                      </p>
+                    </div>
                   )}
                 </div>
 
                 <button
                   onClick={handleMatch}
                   disabled={loading}
-                  className="w-full px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 transition"
+                  className="w-full px-8 py-4 bg-blue-600 text-white text-lg font-bold rounded-2xl hover:scale-[1.02] hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-300 shadow-xl flex items-center justify-center gap-3"
                 >
-                  {loading ? 'Matching...' : 'Match Resumes'}
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-white"></div>
+                      <span>Analyzing Resumes...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Match Resumes</span>
+                    </>
+                  )}
                 </button>
                 
                 {slowLoading && (
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800">
-                    <p className="font-medium">⏳ This is taking longer than usual...</p>
-                    <p className="text-xs mt-1">The backend might be waking up from sleep (free tier limitation). This can take up to 60 seconds on first load.</p>
+                  <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-2xl p-5 text-sm text-yellow-900 shadow-lg animate-slideUp">
+                    <div className="flex items-center gap-3">
+                      <span className="text-3xl animate-pulse">⏳</span>
+                      <div>
+                        <p className="font-bold text-base">This is taking longer than usual...</p>
+                        <p className="text-xs mt-1 text-yellow-800">The backend might be waking up from sleep (free tier limitation). This can take up to 60 seconds on first load. ☕</p>
+                      </div>
+                    </div>
                   </div>
                 )}
 
-                {showResults && results.length > 0 && (
-                  <div ref={resultsRef} className="mt-8 bg-white rounded-lg shadow-md p-6">
-                    <h2 className="text-2xl font-semibold mb-6">Matching Results</h2>
+                {showResults && Array.isArray(results) && results.length > 0 && (
+                  <div ref={resultsRef} className="mt-12 bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-blue-200 animate-slideUp">
+                    <div className="flex items-center gap-3 mb-8">
+                      <span className="text-4xl">🎯</span>
+                      <h2 className="text-3xl font-bold text-blue-600">Matching Results</h2>
+                    </div>
                     
-                    <div className="space-y-4">
+                    <div className="space-y-5">
                       {results.map((result, idx) => (
                         <div
                           key={idx}
-                          className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                          className="fancy-card p-6 border-2 border-gray-100 hover:border-blue-300 transition-all duration-300 animate-fadeIn"
+                          style={{animationDelay: `${idx * 0.1}s`}}
                         >
-                          <div className="flex justify-between items-start mb-3">
-                            <div>
-                              <h3 className="font-semibold text-lg">{result.filename}</h3>
-                              <p className="text-sm text-gray-600">
+                          <div className="flex justify-between items-start mb-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3 mb-2">
+                                <span className="text-2xl">{idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : '📄'}</span>
+                                <h3 className="font-bold text-xl text-gray-800">{result.filename}</h3>
+                              </div>
+                              <p className="text-sm font-semibold text-blue-600">
                                 Rank: #{idx + 1}
                               </p>
                             </div>
                             <div className="text-right">
-                              <div className={`text-2xl font-bold ${
-                                result.score >= 70 ? 'text-green-600' :
-                                result.score >= 40 ? 'text-yellow-600' :
-                                'text-red-600'
-                              }`}>
+                              <div className={`text-4xl font-black ${
+                                result.score >= 70 ? 'text-green-600 drop-shadow-lg' :
+                                result.score >= 40 ? 'text-yellow-600 drop-shadow-lg' :
+                                'text-red-600 drop-shadow-lg'
+                              } animate-glow`}>
                                 {result.score}%
                               </div>
-                              <p className="text-xs text-gray-500">Match Score</p>
+                              <p className="text-xs text-gray-600 font-semibold mt-1">Match Score</p>
+                              <div className="mt-2">
+                                {result.score >= 70 && <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full">Excellent Match ✨</span>}
+                                {result.score >= 40 && result.score < 70 && <span className="px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold rounded-full">Good Match 👍</span>}
+                                {result.score < 40 && <span className="px-3 py-1 bg-red-100 text-red-800 text-xs font-bold rounded-full">Weak Match ⚠️</span>}
+                              </div>
                             </div>
                           </div>
 
-                          {result.matched_skills && result.matched_skills.length > 0 && (
-                            <div className="mb-2">
-                              <p className="text-sm font-medium mb-1">Matched Skills:</p>
+                          {Array.isArray(result.matched_skills) && result.matched_skills.length > 0 && (
+                            <div className="mb-3">
+                              <p className="text-sm font-bold mb-2 text-gray-700 flex items-center gap-2">
+                                <span>✅</span> Matched Skills:
+                              </p>
                               <div className="flex flex-wrap gap-2">
                                 {result.matched_skills.map((skill, i) => (
                                   <span
                                     key={i}
-                                    className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded"
+                                    className="px-3 py-1.5 bg-green-600 text-white text-xs font-bold rounded-full shadow-md hover:scale-110 transition-transform cursor-pointer"
                                   >
                                     {skill}
                                   </span>
@@ -514,14 +579,14 @@ export default function Dashboard() {
                           )}
 
                           {result.extracted_data?.email && (
-                            <p className="text-sm text-gray-600 mt-2">
-                              📧 {result.extracted_data.email}
+                            <p className="text-sm text-gray-700 mt-3 font-medium flex items-center gap-2">
+                              <span className="text-lg">📧</span> {result.extracted_data.email}
                             </p>
                           )}
 
                           {result.extracted_data?.phone && (
-                            <p className="text-sm text-gray-600">
-                              📞 {result.extracted_data.phone}
+                            <p className="text-sm text-gray-700 font-medium flex items-center gap-2">
+                              <span className="text-lg">📞</span> {result.extracted_data.phone}
                             </p>
                           )}
                         </div>
@@ -534,23 +599,26 @@ export default function Dashboard() {
 
             {/* Resume Library Tab */}
             {activeTab === 'resumes' && (
-              <div>
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900">Resume Library</h2>
+              <div className="animate-fadeIn">
+                <div className="flex justify-between items-center mb-8">
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl">📚</span>
+                    <h2 className="text-3xl font-bold text-blue-600">Resume Library</h2>
+                  </div>
                   <button
                     onClick={loadResumes}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+                    className="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 hover:shadow-xl transition-all duration-300"
                   >
                     Refresh
                   </button>
                 </div>
 
                 {loadingResumes ? (
-                  <div className="text-center py-12">
-                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                  <div className="text-center py-20">
+                    <div className="inline-block animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
                     <p className="mt-2 text-gray-600">Loading resumes...</p>
                   </div>
-                ) : resumes.length === 0 ? (
+                ) : !Array.isArray(resumes) || resumes.length === 0 ? (
                   <div className="text-center py-12">
                     <p className="text-gray-600">No resumes saved yet. Upload resumes in the Match tab to save them.</p>
                   </div>
@@ -565,12 +633,12 @@ export default function Dashboard() {
                             {resume.email && <p className="text-gray-600 text-sm">Email: {resume.email}</p>}
                             {resume.phone && <p className="text-gray-600 text-sm">Phone: {resume.phone}</p>}
                             
-                            {resume.skills && resume.skills.length > 0 && (
+                            {Array.isArray(resume.skills) && resume.skills.length > 0 && (
                               <div className="mt-3">
                                 <p className="text-sm font-medium text-gray-700 mb-2">Skills:</p>
                                 <div className="flex flex-wrap gap-2">
                                   {resume.skills.map((skill, idx) => (
-                                    <span key={idx} className="px-2 py-1 bg-indigo-50 text-indigo-700 text-sm rounded">
+                                    <span key={idx} className="px-2 py-1 bg-blue-50 text-blue-700 text-sm rounded">
                                       {skill}
                                     </span>
                                   ))}
@@ -604,7 +672,7 @@ export default function Dashboard() {
                   <h2 className="text-2xl font-bold text-gray-900">Match History</h2>
                   <button
                     onClick={loadHistory}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+                    className="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 hover:shadow-xl transition-all duration-300"
                   >
                     Refresh
                   </button>
@@ -612,7 +680,7 @@ export default function Dashboard() {
 
                 {loadingHistory ? (
                   <div className="text-center py-12">
-                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                     <p className="mt-2 text-gray-600">Loading history...</p>
                   </div>
                 ) : matchHistory.length === 0 ? (
@@ -621,8 +689,8 @@ export default function Dashboard() {
                   </div>
                 ) : (
                   <div className="space-y-6">
-                    {jobSearches?.map((job) => {
-                      const jobMatches = matchHistory?.filter(m => m.job_search_id === job.id) || []
+                    {Array.isArray(jobSearches) && jobSearches.map((job) => {
+                      const jobMatches = Array.isArray(matchHistory) ? matchHistory.filter(m => m.job_search_id === job.id) : []
                       if (jobMatches.length === 0) return null
                       
                       return (
@@ -652,7 +720,7 @@ export default function Dashboard() {
                                   <div>
                                     <p className="text-sm font-medium text-gray-700 mb-1">Matched Skills:</p>
                                     <div className="flex flex-wrap gap-1">
-                                      {match.matched_skills?.map((skill, idx) => (
+                                      {Array.isArray(match.matched_skills) && match.matched_skills.map((skill, idx) => (
                                         <span key={idx} className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded">
                                           {skill}
                                         </span>
@@ -660,7 +728,7 @@ export default function Dashboard() {
                                     </div>
                                   </div>
                                   
-                                  {match.missing_skills && match.missing_skills.length > 0 && (
+                                  {Array.isArray(match.missing_skills) && match.missing_skills.length > 0 && (
                                     <div>
                                       <p className="text-sm font-medium text-gray-700 mb-1">Missing Skills:</p>
                                       <div className="flex flex-wrap gap-1">
@@ -691,7 +759,7 @@ export default function Dashboard() {
                   <h2 className="text-2xl font-bold text-gray-900">Analytics</h2>
                   <button
                     onClick={loadStats}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+                    className="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 hover:shadow-xl transition-all duration-300"
                   >
                     Refresh
                   </button>
@@ -699,29 +767,29 @@ export default function Dashboard() {
 
                 {loadingStats ? (
                   <div className="text-center py-12">
-                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                     <p className="mt-2 text-gray-600">Loading statistics...</p>
                   </div>
                 ) : stats ? (
                   <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div className="bg-white border border-gray-200 rounded-lg p-6">
                       <h3 className="text-sm font-medium text-gray-600 mb-2">Total Resumes</h3>
-                      <p className="text-3xl font-bold text-indigo-600">{stats.total_resumes}</p>
+                      <p className="text-3xl font-bold text-blue-600">{stats.total_resumes}</p>
                     </div>
                     
                     <div className="bg-white border border-gray-200 rounded-lg p-6">
                       <h3 className="text-sm font-medium text-gray-600 mb-2">Job Searches</h3>
-                      <p className="text-3xl font-bold text-indigo-600">{stats.total_job_searches}</p>
+                      <p className="text-3xl font-bold text-blue-600">{stats.total_job_searches}</p>
                     </div>
                     
                     <div className="bg-white border border-gray-200 rounded-lg p-6">
                       <h3 className="text-sm font-medium text-gray-600 mb-2">Total Matches</h3>
-                      <p className="text-3xl font-bold text-indigo-600">{stats.total_matches}</p>
+                      <p className="text-3xl font-bold text-blue-600">{stats.total_matches}</p>
                     </div>
                     
                     <div className="bg-white border border-gray-200 rounded-lg p-6">
                       <h3 className="text-sm font-medium text-gray-600 mb-2">Avg Match Score</h3>
-                      <p className="text-3xl font-bold text-indigo-600">
+                      <p className="text-3xl font-bold text-blue-600">
                         {stats.average_match_score ? `${stats.average_match_score.toFixed(1)}%` : 'N/A'}
                       </p>
                     </div>
@@ -739,3 +807,5 @@ export default function Dashboard() {
     </div>
   )
 }
+
+
