@@ -45,6 +45,8 @@ export default function Home() {
       setSession(session)
       if (session) {
         router.push('/dashboard')
+      } else {
+        setLoading(false)
       }
     })
 

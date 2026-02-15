@@ -104,8 +104,14 @@ export default function Dashboard() {
   }, [activeTab, user])
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    router.push('/')
+    try {
+      await supabase.auth.signOut()
+      setUser(null)
+      router.push('/')
+    } catch (error) {
+      console.error('Sign out error:', error)
+      alert('Failed to sign out. Please try again.')
+    }
   }
 
   const getAuthHeader = async () => {
