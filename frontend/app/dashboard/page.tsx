@@ -342,91 +342,95 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white backdrop-blur-xl shadow-lg border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl animate-float">📄</span>
-            <h1 className="text-2xl font-bold text-blue-600">Resume Parser Dashboard</h1>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-5 flex justify-between items-center">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <span className="text-2xl sm:text-3xl animate-float">📄</span>
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-blue-600">Resume Parser<span className="hidden sm:inline"> Dashboard</span></h1>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {user && (
-              <span className="text-sm font-medium text-gray-700 px-4 py-2 bg-blue-50 rounded-full border border-blue-200">
+              <span className="hidden md:flex text-xs sm:text-sm font-medium text-gray-700 px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-50 rounded-full border border-blue-200">
                 👤 {user.email}
               </span>
             )}
             <button
               onClick={handleSignOut}
-              className="px-5 py-2.5 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 hover:shadow-lg transition-all duration-300"
+              className="px-3 py-2 sm:px-5 sm:py-2.5 bg-red-600 text-white text-sm sm:text-base font-semibold rounded-xl hover:bg-red-700 hover:shadow-lg transition-all duration-300"
             >
-              🚪 Sign Out
+              <span className="hidden sm:inline">🚪 </span>Sign Out
             </button>
           </div>
         </div>
       </header>
 
       {/* Tabs */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6 md:mt-8">
         <div className="bg-white backdrop-blur-xl rounded-2xl shadow-xl border border-gray-200">
-          <div className="flex border-b border-gray-200">
+          <div className="flex overflow-x-auto border-b border-gray-200 scrollbar-hide">
             <button
               onClick={() => setActiveTab('match')}
-              className={`px-8 py-4 font-semibold transition-all duration-300 flex items-center gap-2 ${
+              className={`px-4 sm:px-6 md:px-8 py-3 sm:py-4 text-sm sm:text-base font-semibold transition-all duration-300 flex items-center gap-1 sm:gap-2 whitespace-nowrap ${
                 activeTab === 'match'
                   ? 'border-b-4 border-blue-600 text-blue-600 bg-blue-50'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
-              <span className="text-xl">🎯</span>
-              Match Resumes
+              <span className="text-lg sm:text-xl">🎯</span>
+              <span className="hidden sm:inline">Match Resumes</span>
+              <span className="sm:hidden">Match</span>
             </button>
             {user && (
               <>
                 <button
                   onClick={() => setActiveTab('resumes')}
-                  className={`px-8 py-4 font-semibold transition-all duration-300 flex items-center gap-2 ${
+                  className={`px-4 sm:px-6 md:px-8 py-3 sm:py-4 text-sm sm:text-base font-semibold transition-all duration-300 flex items-center gap-1 sm:gap-2 whitespace-nowrap ${
                     activeTab === 'resumes'
                       ? 'border-b-4 border-blue-600 text-blue-600 bg-blue-50'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
-                  <span className="text-xl">📚</span>
-                  Resume Library
+                  <span className="text-lg sm:text-xl">📚</span>
+                  <span className="hidden sm:inline">Resume Library</span>
+                  <span className="sm:hidden">Library</span>
                 </button>
                 <button
                   onClick={() => setActiveTab('history')}
-                  className={`px-8 py-4 font-semibold transition-all duration-300 flex items-center gap-2 ${
+                  className={`px-4 sm:px-6 md:px-8 py-3 sm:py-4 text-sm sm:text-base font-semibold transition-all duration-300 flex items-center gap-1 sm:gap-2 whitespace-nowrap ${
                     activeTab === 'history'
                       ? 'border-b-4 border-blue-600 text-blue-600 bg-blue-50'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
-                  <span className="text-xl">📜</span>
-                  Match History
+                  <span className="text-lg sm:text-xl">📋</span>
+                  <span className="hidden sm:inline">Match History</span>
+                  <span className="sm:hidden">History</span>
                 </button>
                 <button
                   onClick={() => setActiveTab('analytics')}
-                  className={`px-8 py-4 font-semibold transition-all duration-300 flex items-center gap-2 ${
+                  className={`px-4 sm:px-6 md:px-8 py-3 sm:py-4 text-sm sm:text-base font-semibold transition-all duration-300 flex items-center gap-1 sm:gap-2 whitespace-nowrap ${
                     activeTab === 'analytics'
                       ? 'border-b-4 border-blue-600 text-blue-600 bg-blue-50'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
-                  <span className="text-xl">📊</span>
-                  Analytics
+                  <span className="text-lg sm:text-xl">📊</span>
+                  <span className="hidden sm:inline">Analytics</span>
+                  <span className="sm:hidden">Stats</span>
                 </button>
               </>
             )}
           </div>
 
           {/* Tab Content */}
-          <div className="p-8">
+          <div className="p-4 sm:p-6 md:p-8">
             {/* Match Tab */}
             {activeTab === 'match' && (
-              <div className="space-y-8 animate-fadeIn">
-                <div className="bg-blue-50 p-6 rounded-2xl border border-blue-200">
+              <div className="space-y-6 sm:space-y-8 animate-fadeIn">
+                <div className="bg-blue-50 p-4 sm:p-6 rounded-2xl border border-blue-200">
                   <div className="flex gap-2 bg-gray-100 p-1 rounded-xl mb-4">
                     <button
                       onClick={() => setUseKeywords(false)}
-                      className={`flex-1 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 ${
+                      className={`flex-1 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-semibold text-xs sm:text-sm transition-all duration-300 ${
                         !useKeywords
                           ? 'bg-blue-600 text-white shadow-md'
                           : 'text-gray-600 hover:text-gray-800'
@@ -436,7 +440,7 @@ export default function Dashboard() {
                     </button>
                     <button
                       onClick={() => setUseKeywords(true)}
-                      className={`flex-1 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 ${
+                      className={`flex-1 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-semibold text-xs sm:text-sm transition-all duration-300 ${
                         useKeywords
                           ? 'bg-blue-600 text-white shadow-md'
                           : 'text-gray-600 hover:text-gray-800'
@@ -448,7 +452,7 @@ export default function Dashboard() {
 
                   {useKeywords ? (
                     <div className="mt-4">
-                      <label className="block text-sm font-bold text-gray-800 mb-3">
+                      <label className="block text-xs sm:text-sm font-bold text-gray-800 mb-2 sm:mb-3">
                         Keywords (comma-separated)
                       </label>
                       <input
@@ -456,12 +460,12 @@ export default function Dashboard() {
                         value={keywords}
                         onChange={(e) => setKeywords(e.target.value)}
                         placeholder="e.g., Python, Machine Learning, API, React"
-                        className="w-full px-5 py-3 border-2 border-blue-200 rounded-xl focus:ring-4 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition-all duration-300 text-gray-700 font-medium"
+                        className="w-full px-4 sm:px-5 py-2.5 sm:py-3 text-sm sm:text-base border-2 border-blue-200 rounded-xl focus:ring-4 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition-all duration-300 text-gray-700 font-medium"
                       />
                     </div>
                   ) : (
                     <div className="mt-4">
-                      <label className="block text-sm font-bold text-gray-800 mb-3">
+                      <label className="block text-xs sm:text-sm font-bold text-gray-800 mb-2 sm:mb-3">
                         📄 Job Description
                       </label>
                       <textarea
@@ -469,14 +473,14 @@ export default function Dashboard() {
                         onChange={(e) => setJobDescription(e.target.value)}
                         rows={6}
                         placeholder="Paste job description here... We will extract relevant skills and requirements automatically."
-                        className="w-full px-5 py-4 border-2 border-blue-200 rounded-xl focus:ring-4 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition-all duration-300 text-gray-700 font-medium resize-none"
+                        className="w-full px-4 sm:px-5 py-3 sm:py-4 text-sm sm:text-base border-2 border-blue-200 rounded-xl focus:ring-4 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition-all duration-300 text-gray-700 font-medium resize-none"
                       />
                     </div>
                   )}
                 </div>
 
-                <div className="bg-blue-50 p-6 rounded-2xl border border-blue-200">
-                  <label className="block text-sm font-bold text-gray-800 mb-3">
+                <div className="bg-blue-50 p-4 sm:p-6 rounded-2xl border border-blue-200">
+                  <label className="block text-xs sm:text-sm font-bold text-gray-800 mb-2 sm:mb-3">
                     📎 Upload Resumes (PDF, DOC, DOCX)
                   </label>
                   <input
@@ -484,12 +488,12 @@ export default function Dashboard() {
                     multiple
                     accept=".pdf,.doc,.docx"
                     onChange={handleFileChange}
-                    className="block w-full text-sm text-gray-600 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-blue-600 file:text-white hover:file:scale-105 file:transition-all file:duration-300 file:cursor-pointer file:shadow-lg cursor-pointer"
+                    className="block w-full text-xs sm:text-sm text-gray-600 file:mr-4 file:py-2 sm:file:py-3 file:px-4 sm:file:px-6 file:rounded-xl file:border-0 file:text-xs sm:file:text-sm file:font-bold file:bg-blue-600 file:text-white hover:file:scale-105 file:transition-all file:duration-300 file:cursor-pointer file:shadow-lg cursor-pointer"
                   />
                   {files.length > 0 && (
                     <div className="mt-4 flex items-center gap-2 bg-white p-3 rounded-xl shadow-md animate-slideUp">
-                      <span className="text-2xl">✅</span>
-                      <p className="text-sm font-bold text-gray-700">
+                      <span className="text-xl sm:text-2xl">✅</span>
+                      <p className="text-xs sm:text-sm font-bold text-gray-700">
                         {files.length} file(s) selected and ready to analyze!
                       </p>
                     </div>
@@ -499,11 +503,11 @@ export default function Dashboard() {
                 <button
                   onClick={handleMatch}
                   disabled={loading}
-                  className="w-full px-8 py-4 bg-blue-600 text-white text-lg font-bold rounded-2xl hover:scale-[1.02] hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-300 shadow-xl flex items-center justify-center gap-3"
+                  className="w-full px-6 sm:px-8 py-3 sm:py-4 bg-blue-600 text-white text-base sm:text-lg font-bold rounded-2xl hover:scale-[1.02] hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-300 shadow-xl flex items-center justify-center gap-3"
                 >
                   {loading ? (
                     <>
-                      <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-white"></div>
+                      <div className="animate-spin rounded-full h-5 w-5 sm:h-6 sm:w-6 border-t-2 border-b-2 border-white"></div>
                       <span>Analyzing Resumes...</span>
                     </>
                   ) : (

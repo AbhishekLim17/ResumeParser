@@ -75,25 +75,25 @@ export default function Home() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen p-4 bg-gray-50 relative overflow-hidden">
+    <div className="flex items-center justify-center min-h-screen p-4 sm:p-6 md:p-8 bg-gray-50 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-float"></div>
-        <div className="absolute top-40 right-10 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-float" style={{animationDelay: '2s'}}></div>
-        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-blue-100 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-float" style={{animationDelay: '4s'}}></div>
+        <div className="absolute top-20 left-10 w-48 h-48 sm:w-72 sm:h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-float"></div>
+        <div className="absolute top-40 right-10 w-48 h-48 sm:w-72 sm:h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-float" style={{animationDelay: '2s'}}></div>
+        <div className="absolute -bottom-8 left-20 w-48 h-48 sm:w-72 sm:h-72 bg-blue-100 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-float" style={{animationDelay: '4s'}}></div>
       </div>
       
       <div className="w-full max-w-md relative z-10 animate-fadeIn">
-        <div className="bg-white backdrop-blur-xl rounded-3xl shadow-2xl p-10 border border-gray-200 hover:shadow-blue-500/20 transition-all duration-500">
-          <div className="text-center mb-8">
-            <div className="text-7xl mb-6 animate-float">📄</div>
-            <h1 className="text-4xl font-bold text-blue-600 mb-3 animate-slideUp">
+        <div className="bg-white backdrop-blur-xl rounded-3xl shadow-2xl p-6 sm:p-8 md:p-10 border border-gray-200 hover:shadow-blue-500/20 transition-all duration-500">
+          <div className="text-center mb-6 sm:mb-8">
+            <div className="text-5xl sm:text-6xl md:text-7xl mb-4 sm:mb-6 animate-float">📄</div>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-blue-600 mb-3 animate-slideUp">
               Resume Parser
             </h1>
-            <div className="mt-4 flex justify-center gap-3 animate-slideUp" style={{animationDelay: '0.1s'}}>
-              <span className="px-4 py-1.5 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">Smart Matching</span>
-              <span className="px-4 py-1.5 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">Fast</span>
-              <span className="px-4 py-1.5 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">Accurate</span>
+            <div className="mt-4 flex flex-wrap justify-center gap-2 sm:gap-3 animate-slideUp" style={{animationDelay: '0.1s'}}>
+              <span className="px-3 py-1 sm:px-4 sm:py-1.5 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">Smart Matching</span>
+              <span className="px-3 py-1 sm:px-4 sm:py-1.5 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">Fast</span>
+              <span className="px-3 py-1 sm:px-4 sm:py-1.5 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">Accurate</span>
             </div>
           </div>
 
