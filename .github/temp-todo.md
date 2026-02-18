@@ -4,35 +4,35 @@ Generated: 2026-02-18
 ## Status Legend
 [updated] - Code changes applied
 [tested] - Tests passed
-[todo-N] - Pending task
 
-## Completed Tasks
+## Completed Tasks - Session 1
 [updated] Fixed indefinite loading in Resume Library, Match History, Analytics tabs
-[updated] Added 90s timeout + AbortController to all API calls
+[updated] Added 90s timeout + AbortController to all API calls  
 [updated] Improved error messages for cold starts
 
-## Current Task: Fix Skill Extraction
+## Completed Tasks - Session 2: Fix Skill Extraction
 [updated] Replaced broken frequency-based skill extraction
 [updated] Added comprehensive known_skills database (100+ technical skills)
 [updated] Added extensive stopwords list (150+ non-skill words)
 [updated] Filters out: names, locations, job titles, action verbs, contact info, numbers
 [updated] Now only extracts actual technical skills from resumes
-[todo-1] Deploy to production
-[todo-2] Test with sample resume to verify proper extraction
 
-## Root Cause - Skill Extraction Issue
-**Problem:**
-- extract_skills() was using top 30 most frequent words from resume
-- Added ANY word appearing 2+ times
-- Only filtered 15 common stopwords
-- Result: Names, locations, contact info, section headers extracted as "skills"
+## Completed Tasks - Session 3: UI Improvements
+[updated] Fixed match score percentage styling - removed excessive glow/drop-shadow
+[updated] Changed from 4xl to 5xl and font-black to font-bold for cleaner look
+[updated] Added file list UI showing all selected files with name and size
+[updated] Added remove button (X) for each file to deselect before upload
+[updated] Added scrollable container for large file lists (max-height: 12rem)
+[updated] Improved spacing and visual hierarchy
 
-**Solution:**
-- Created known_skills database with 100+ real technical skills
-- Only extract skills that match known technical terms
-- Added 150+ stopwords (names, locations, job titles, generic words)
-- Proper filtering of non-skill content
+## Changes Summary
+**Match Score Styling:**
+- Removed: drop-shadow-lg and animate-glow classes
+- Changed: text-4xl font-black → text-5xl font-bold
+- Result: Cleaner, more professional percentage display
 
-**Expected Output:**
-- Before: sarah, mitchell, francisco, email, phone, 555, professional, experience, summary
-- After: javascript, node.js, postgresql, aws, react, vue.js, typescript, sql, css
+**File Selection UI:**
+- Shows each file with icon, name, size, and remove button
+- Users can now remove individual files before upload
+- Scrollable list for 10+ files
+- Better visual feedback

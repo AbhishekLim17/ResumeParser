@@ -126,6 +126,10 @@ export default function Dashboard() {
     }
   }
 
+  const removeFile = (index: number) => {
+    setFiles(files.filter((_, i) => i !== index))
+  }
+
   const handleMatch = async () => {
     if (files.length === 0) {
       alert('Please upload at least one resume')
@@ -542,11 +546,36 @@ export default function Dashboard() {
                     className="block w-full text-xs sm:text-sm text-gray-600 file:mr-4 file:py-2 sm:file:py-3 file:px-4 sm:file:px-6 file:rounded-xl file:border-0 file:text-xs sm:file:text-sm file:font-bold file:bg-blue-600 file:text-white hover:file:scale-105 file:transition-all file:duration-300 file:cursor-pointer file:shadow-lg cursor-pointer"
                   />
                   {files.length > 0 && (
-                    <div className="mt-4 flex items-center gap-2 bg-white p-3 rounded-xl shadow-md animate-slideUp">
-                      <span className="text-xl sm:text-2xl">✅</span>
-                      <p className="text-xs sm:text-sm font-bold text-gray-700">
-                        {files.length} file(s) selected and ready to analyze!
+                    <div className="mt-4 space-y-2">
+                      <p className="text-xs sm:text-sm font-bold text-gray-700 flex items-center gap-2">
+                        <span className="text-xl">📎</span>
+                        {files.length} file(s) selected:
                       </p>
+                      <div className="space-y-2 max-h-48 overflow-y-auto">
+                        {files.map((file, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center justify-between bg-white p-3 rounded-xl shadow-md hover:shadow-lg transition-shadow"
+                          >
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                              <span className="text-lg">📄</span>
+                              <span className="text-xs sm:text-sm font-medium text-gray-700 truncate">
+                                {file.name}
+                              </span>
+                              <span className="text-xs text-gray-500 shrink-0">
+                                ({(file.size / 1024).toFixed(1)} KB)
+                              </span>
+                            </div>
+                            <button
+                              onClick={() => removeFile(index)}
+                              className="ml-2 p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+                              title="Remove file"
+                            >
+                              <span className="text-lg">✕</span>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -605,14 +634,14 @@ export default function Dashboard() {
                               </p>
                             </div>
                             <div className="text-right">
-                              <div className={`text-4xl font-black ${
-                                result.score >= 70 ? 'text-green-600 drop-shadow-lg' :
-                                result.score >= 40 ? 'text-yellow-600 drop-shadow-lg' :
-                                'text-red-600 drop-shadow-lg'
-                              } animate-glow`}>
+                              <div className={`text-5xl font-bold ${
+                                result.score >= 70 ? 'text-green-600' :
+                                result.score >= 40 ? 'text-yellow-600' :
+                                'text-red-600'
+                              }`}>
                                 {result.score}%
                               </div>
-                              <p className="text-xs text-gray-600 font-semibold mt-1">Match Score</p>
+                              <p className="text-xs text-gray-600 font-semibold mt-2">Match Score</p>
                               <div className="mt-2">
                                 {result.score >= 70 && <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full">Excellent Match ✨</span>}
                                 {result.score >= 40 && result.score < 70 && <span className="px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold rounded-full">Good Match 👍</span>}
