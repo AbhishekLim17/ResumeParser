@@ -5,6 +5,46 @@ Track errors and lessons learned during development to avoid repetition.
 
 ---
 
+## 2026-02-18 - Indefinite Loading on Resume Library, Match History, Analytics
+
+**Problem:**
+- Resume Library, Match History, and Analytics tabs stuck in loading state for ~60 seconds
+- Users saw "Loading resumes..." spinner for over a minute
+- Eventually would timeout but with poor user experience
+- No clear feedback about what was happening
+
+**Root Cause:**
+- Backend deployed on Render free tier which has cold starts (30-60s sleep time)
+- API fetch calls to `/api/resumes`, `/api/matches`, `/api/job-searches`, `/api/dashboard/stats` had NO timeout configuration
+- Browser default timeout (60-90s) was being hit
+- Error messages were generic and didn't explain cold start behavior
+- Match endpoint had proper 90s timeout, but other endpoints didn't
+
+**Solution:**
+- Added 90-second timeout with AbortController to all three load functions:
+  - `loadResumes()` - now has timeout + controller
+  - `loadHistory()` - now has timeout + controller for both API calls
+  - `loadStats()` - now has timeout + controller
+- Improved error handling with specific messages:
+  - AbortError: Explains cold start and suggests retry
+  - Failed to fetch: Explains connection/startup issues
+  - Other errors: Provides tip about cold starts
+- Matched the pattern used in `handleMatch()` which already had proper timeout
+- Users can now retry by simply clicking the tab again
+
+**Lesson:**
+- ALWAYS add timeouts to ALL API calls, not just some
+- Render free tier cold starts must be accounted for in UX
+- Error messages should explain WHY something failed and HOW to fix it
+- Consistent timeout patterns across all fetch calls prevents missed cases
+- Never assume backend will respond quickly - always handle async timeouts
+- User experience: Show informative messages about platform limitations (cold starts)
+
+**Related Files:**
+- frontend/app/dashboard/page.tsx (lines 220-330)
+
+---
+
 ## 2026-01-04 - Universal Testing & GitHub Deployment
 
 **Problem:**

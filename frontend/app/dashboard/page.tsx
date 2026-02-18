@@ -229,11 +229,18 @@ export default function Dashboard() {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
       const authHeader = await getAuthHeader()
       
+      // Create timeout controller (90 seconds for Render free tier cold start)
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 90000)
+      
       const response = await fetch(`${apiUrl}/api/resumes`, {
         headers: {
           'Authorization': authHeader
-        }
+        },
+        signal: controller.signal
       })
+      
+      clearTimeout(timeoutId)
       
       if (!response.ok) {
         throw new Error(`Server returned ${response.status}`)
@@ -241,9 +248,16 @@ export default function Dashboard() {
       
       const data = await response.json()
       setResumes(data)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading resumes:', error)
-      alert('⚠️ Resume Library feature requires database connection which is currently unavailable. Please use the Match Resumes tab instead.')
+      
+      if (error.name === 'AbortError') {
+        alert('⏱️ Request timed out. The backend might be waking up from sleep (Render free tier cold start takes 30-60 seconds). Please click Refresh to try again.')
+      } else if (error.message?.includes('Failed to fetch')) {
+        alert('🔌 Cannot connect to backend. Please check your internet connection or the backend might be starting up. Try refreshing in a moment.')
+      } else {
+        alert('⚠️ Failed to load resumes. Error: ' + (error.message || 'Unknown error') + '\n\nTip: If you just deployed, the backend may be starting up. Try refreshing in 30 seconds.')
+      }
     } finally {
       setLoadingResumes(false)
     }
@@ -279,23 +293,42 @@ export default function Dashboard() {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
       const authHeader = await getAuthHeader()
       
+      // Create timeout controller (90 seconds for Render free tier cold start)
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 90000)
+      
       const [jobsRes, matchesRes] = await Promise.all([
         fetch(`${apiUrl}/api/job-searches`, {
-          headers: { 'Authorization': authHeader }
+          headers: { 'Authorization': authHeader },
+          signal: controller.signal
         }),
         fetch(`${apiUrl}/api/matches`, {
-          headers: { 'Authorization': authHeader }
+          headers: { 'Authorization': authHeader },
+          signal: controller.signal
         })
       ])
+      
+      clearTimeout(timeoutId)
+      
+      if (!jobsRes.ok || !matchesRes.ok) {
+        throw new Error(`Server returned ${jobsRes.status} or ${matchesRes.status}`)
+      }
       
       const jobs = await jobsRes.json()
       const matches = await matchesRes.json()
       
       setJobSearches(jobs)
       setMatchHistory(matches)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading history:', error)
-      alert('⚠️ Match History feature requires database connection which is currently unavailable. Please use the Match Resumes tab instead.')
+      
+      if (error.name === 'AbortError') {
+        alert('⏱️ Request timed out. The backend might be waking up from sleep (Render free tier cold start takes 30-60 seconds). Please click the History tab again to retry.')
+      } else if (error.message?.includes('Failed to fetch')) {
+        alert('🔌 Cannot connect to backend. Please check your internet connection or the backend might be starting up. Try refreshing in a moment.')
+      } else {
+        alert('⚠️ Failed to load match history. Error: ' + (error.message || 'Unknown error') + '\n\nTip: If you just deployed, the backend may be starting up. Try again in 30 seconds.')
+      }
     } finally {
       setLoadingHistory(false)
     }
@@ -310,17 +343,35 @@ export default function Dashboard() {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
       const authHeader = await getAuthHeader()
       
+      // Create timeout controller (90 seconds for Render free tier cold start)
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 90000)
+      
       const response = await fetch(`${apiUrl}/api/dashboard/stats`, {
         headers: {
           'Authorization': authHeader
-        }
+        },
+        signal: controller.signal
       })
+      
+      clearTimeout(timeoutId)
+      
+      if (!response.ok) {
+        throw new Error(`Server returned ${response.status}`)
+      }
       
       const data = await response.json()
       setStats(data)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading stats:', error)
-      alert('⚠️ Analytics feature requires database connection which is currently unavailable. Please use the Match Resumes tab instead.')
+      
+      if (error.name === 'AbortError') {
+        alert('⏱️ Request timed out. The backend might be waking up from sleep (Render free tier cold start takes 30-60 seconds). Please click Analytics tab again to retry.')
+      } else if (error.message?.includes('Failed to fetch')) {
+        alert('🔌 Cannot connect to backend. Please check your internet connection or the backend might be starting up. Try refreshing in a moment.')
+      } else {
+        alert('⚠️ Failed to load analytics. Error: ' + (error.message || 'Unknown error') + '\n\nTip: If you just deployed, the backend may be starting up. Try again in 30 seconds.')
+      }
     } finally {
       setLoadingStats(false)
     }
