@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: 'Resume Parser - NLP Based Screening',
   description: 'NLP-based resume screening for HR managers',
   icons: {
-    icon: '/favicon.svg',
+    icon: '/favicon.svg?v=2',
   },
 }
 
