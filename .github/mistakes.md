@@ -5,6 +5,68 @@ Track errors and lessons learned during development to avoid repetition.
 
 ---
 
+## 2026-02-18 - Incorrect Skill Extraction (Names, Locations, Contact Info as Skills)
+
+**Problem:**
+- Resume Library showing names, locations, and contact info as "skills"
+- Example bad output: sarah, mitchell, francisco, email, phone, 555, professional, experience, summary, highly, skilled
+- Only actual skills like javascript, node.js, postgresql were correct
+- Poor user experience - meaningless "skills" displayed
+
+**Root Cause:**
+- `extract_skills()` in resume_parser.py used frequency-based approach
+- Extracted top 30 most frequent words from entire resume text
+- Added ANY word appearing 2+ times in the document
+- Only filtered 15 basic stopwords (the, and, for, with, etc.)
+- No validation that extracted words were actually technical skills
+- Result: Names, job titles, locations, section headers all treated as "skills"
+
+**Why This Happened:**
+- Over-reliance on NLP frequency analysis without domain knowledge
+- Assumed frequent words = important skills (wrong assumption)
+- Insufficient stopword filtering
+- No technical skills validation
+
+**Solution:**
+- Created `known_skills` database with 100+ actual technical terms:
+  - Programming languages (python, java, javascript, typescript, etc.)
+  - Frameworks (react, angular, django, flask, etc.)
+  - Databases (mysql, postgresql, mongodb, etc.)
+  - Cloud/DevOps (aws, azure, docker, kubernetes, etc.)
+  - Tools (git, jira, postman, etc.)
+- Added comprehensive stopwords list (150+ words):
+  - Personal info (name, email, phone, address, com, gmail)
+  - Resume sections (summary, experience, education, skills)
+  - Generic words (professional, technical, work, working)
+  - Locations (san, francisco, california, usa)
+  - Job titles (senior, junior, manager, developer, engineer)
+  - Action verbs (developed, built, created, designed)
+  - Numbers and dates (year, months, one, two, three)
+- Changed approach: Match text against known_skills database instead of frequency
+- Extract technical patterns (Node.js, C++, TypeScript)
+- Filter all non-skill words before returning results
+
+**Lesson:**
+- Frequency-based NLP is NOT suitable for skill extraction without validation
+- Domain knowledge (known technical skills) is essential
+- Always validate NLP output against known valid values
+- Comprehensive stopword filtering is critical for resume parsing
+- Test with real resumes to catch bad extractions early
+- Skills extraction needs both NLP AND domain-specific knowledge
+- Never assume high-frequency words are meaningful without context
+
+**Related Files:**
+- backend/resume_parser.py (lines 206-280)
+
+**Testing:**
+- Deploy to production
+- Re-parse existing resumes OR upload new resume
+- Verify only actual technical skills are displayed
+- Expected: javascript, node.js, postgresql, aws, react, typescript, sql
+- Expected: NO names, locations, contact info, section headers
+
+---
+
 ## 2026-02-18 - Indefinite Loading on Resume Library, Match History, Analytics
 
 **Problem:**

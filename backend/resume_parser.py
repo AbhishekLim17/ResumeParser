@@ -206,62 +206,119 @@ class ResumeParser:
     def extract_skills(self, text: str) -> List[str]:
         """
         Extract skills using improved NLP + technical term preservation
-        Captures both processed and original technical terms
+        Filters out names, locations, generic words, and contact info
         """
         skills = []
+        text_lower = text.lower()
         
-        # Step 1: Extract keywords using NLP (TF-based importance)
-        keywords = self.nlp.extract_keywords(text, top_n=30)
-        skills.extend(keywords)
+        # Common technical skills database (expandable)
+        known_skills = {
+            # Programming Languages
+            'python', 'java', 'javascript', 'typescript', 'c++', 'c#', 'ruby', 'php', 
+            'swift', 'kotlin', 'go', 'rust', 'scala', 'r', 'matlab', 'perl', 'shell',
+            'bash', 'powershell', 'sql', 'html', 'css', 'sass', 'less',
+            
+            # Frameworks & Libraries
+            'react', 'angular', 'vue', 'vue.js', 'node', 'node.js', 'next.js', 'nuxt',
+            'express', 'django', 'flask', 'fastapi', 'spring', 'springboot', 'laravel',
+            'rails', 'asp.net', '.net', 'jquery', 'bootstrap', 'tailwind', 'redux',
+            
+            # Databases
+            'mysql', 'postgresql', 'mongodb', 'redis', 'cassandra', 'dynamodb',
+            'elasticsearch', 'oracle', 'sqlite', 'mariadb', 'mssql',
+            
+            # Cloud & DevOps
+            'aws', 'azure', 'gcp', 'docker', 'kubernetes', 'jenkins', 'gitlab',
+            'github', 'terraform', 'ansible', 'chef', 'puppet', 'ci/cd', 'devops',
+            
+            # Tools & Technologies
+            'git', 'jira', 'confluence', 'slack', 'postman', 'swagger', 'graphql',
+            'rest', 'api', 'microservices', 'webpack', 'vite', 'nginx', 'apache',
+            
+            # Concepts & Skills
+            'agile', 'scrum', 'tdd', 'bdd', 'oop', 'data structures', 'algorithms',
+            'machine learning', 'deep learning', 'ai', 'nlp', 'computer vision',
+            'data science', 'big data', 'hadoop', 'spark', 'kafka', 'linux', 'unix'
+        }
         
-        # Step 2: Capture technical terms with special characters (e.g., Node.js, C++, C#)
-        # Look for capitalized words and technical patterns
+        # Comprehensive stopwords and non-skill words
+        stopwords = {
+            # Personal info
+            'name', 'email', 'phone', 'address', 'com', 'gmail', 'yahoo', 'hotmail',
+            
+            # Common resume words
+            'summary', 'experience', 'education', 'skills', 'professional', 'technical',
+            'work', 'working', 'worked', 'position', 'role', 'job', 'company', 'team',
+            'project', 'projects', 'responsibility', 'responsibilities', 'objective',
+            'profile', 'career', 'employment', 'history', 'background', 'qualification',
+            'qualifications', 'achievement', 'achievements', 'award', 'awards',
+            
+            # Time & location
+            'year', 'years', 'month', 'months', 'day', 'week', 'time', 'date', 'present',
+            'current', 'san', 'francisco', 'york', 'angeles', 'chicago', 'boston',
+            'seattle', 'austin', 'denver', 'usa', 'uk', 'canada', 'california', 'texas',
+            
+            # Job levels & titles (too generic)
+            'senior', 'junior', 'lead', 'manager', 'director', 'engineer', 'developer',
+            'analyst', 'specialist', 'consultant', 'coordinator', 'associate', 'intern',
+            
+            # Action verbs (too generic)
+            'developed', 'designed', 'implemented', 'created', 'built', 'managed',
+            'led', 'worked', 'collaborated', 'improved', 'increased', 'reduced',
+            'building', 'designing', 'creating', 'developing', 'managing', 'leading',
+            
+            # Generic descriptors
+            'strong', 'excellent', 'good', 'great', 'highly', 'skilled', 'experienced',
+            'proven', 'successful', 'effective', 'efficient', 'proficient', 'expert',
+            'advanced', 'intermediate', 'basic', 'knowledge', 'ability', 'capable',
+            
+            # Common words
+            'application', 'applications', 'system', 'systems', 'solution', 'solutions',
+            'platform', 'platforms', 'service', 'services', 'product', 'products',
+            'business', 'client', 'customer', 'user', 'users', 'data', 'code', 'test',
+            
+            # Numbers (from phone/dates)
+            'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'
+        }
+        
+        # Step 1: Extract technical patterns with special characters
         technical_patterns = [
             r'\b[A-Z][a-zA-Z]*\.js\b',  # Node.js, Next.js, Vue.js
             r'\b[A-Z][a-zA-Z]+\+\+\b',  # C++
             r'\b[A-Z]#\b',              # C#, F#
-            r'\b[A-Z][a-zA-Z]+Script\b', # JavaScript, TypeScript
-            r'\b[A-Z]{2,}\b',           # AWS, SQL, API, HTML, CSS
-            r'\b[A-Z][a-z]+(?:[A-Z][a-z]+)+\b',  # CamelCase: PostgreSQL, MongoDB
+            r'\bTypeScript\b',          # TypeScript
+            r'\bJavaScript\b',          # JavaScript
         ]
         
         for pattern in technical_patterns:
             matches = re.findall(pattern, text)
             skills.extend([m.lower() for m in matches])
         
-        # Step 3: Extract common multi-word technical terms
-        multi_word_patterns = [
-            r'\b(?:machine learning|deep learning|data science|cloud computing|'
-            r'web development|full stack|front end|back end|software engineering|'
-            r'ci/cd|devops|microservices|rest api|graphql)\b'
-        ]
+        # Step 2: Extract known skills from text
+        for skill in known_skills:
+            # Look for skill as whole word (case insensitive)
+            pattern = r'\b' + re.escape(skill) + r'(?:\.js)?\b'
+            if re.search(pattern, text_lower):
+                skills.append(skill)
         
-        for pattern in multi_word_patterns:
-            matches = re.findall(pattern, text.lower())
-            skills.extend(matches)
-        
-        # Step 4: Tokenize and find frequently mentioned terms
-        tokens = self.nlp.tokenize(text.lower())
-        lemmatized = self.nlp.lemmatize(text.lower())
-        
-        for token in set(lemmatized):
-            if len(token) > 2 and token not in skills:
-                # Add if appears multiple times
-                if text.lower().count(token) >= 2:
-                    skills.append(token)
-        
-        # Step 5: Clean and deduplicate
+        # Step 3: Clean and deduplicate
         unique_skills = []
         seen = set()
+        
         for skill in skills:
             skill_clean = skill.strip().lower()
-            if skill_clean and len(skill_clean) > 1 and skill_clean not in seen:
-                # Filter out common words that aren't skills
-                common_words = {'the', 'and', 'for', 'with', 'from', 'this', 'that', 
-                               'have', 'has', 'had', 'been', 'were', 'are', 'was'}
-                if skill_clean not in common_words:
-                    unique_skills.append(skill_clean)
-                    seen.add(skill_clean)
+            
+            # Skip if already seen, empty, too short, or is number
+            if (not skill_clean or len(skill_clean) <= 2 or 
+                skill_clean in seen or skill_clean.isdigit()):
+                continue
+            
+            # Skip if in stopwords
+            if skill_clean in stopwords:
+                continue
+            
+            unique_skills.append(skill_clean)
+            seen.add(skill_clean)
         
         return unique_skills[:40]  # Return top 40 skills
     
